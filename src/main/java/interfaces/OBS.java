@@ -2,6 +2,7 @@ package interfaces;
 
 import io.obswebsocket.community.client.OBSRemoteController;
 import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
+import io.obswebsocket.community.client.message.response.filters.GetSourceFilterResponse;
 import io.obswebsocket.community.client.message.response.inputs.GetInputMuteResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemEnabledResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemIdResponse;
@@ -145,6 +146,28 @@ public class OBS {
             return;
         }
         setAudioSourceMuted(sourceName, !muted);
+    }
+
+    public Boolean getSourceFilterEnabled(String sourceName, String filterName) {
+        CompletableFuture<GetSourceFilterResponse> future = CompletableFuture.supplyAsync(
+                () -> obsRemote.getSourceFilter(sourceName, filterName, TIMEOUT)
+        );
+
+        GetSourceFilterResponse response;
+        try {
+            response = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        }
+
+        if (!response.isSuccessful()) {
+            return null;
+        }
+        return response.getFilterEnabled();
+    }
+
+    public void setSourceFilterEnabled(String sourceName, String filterName, boolean enabled) {
+        obsRemote.setSourceFilterEnabled(sourceName, filterName, enabled, TIMEOUT);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
