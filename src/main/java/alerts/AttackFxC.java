@@ -1,4 +1,4 @@
-package alerts.bits;
+package alerts;
 
 import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import utilities.AudioClip;

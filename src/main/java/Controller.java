@@ -1,5 +1,6 @@
-import alerts.bits.AttackFxC;
-import alerts.points.GoodRng;
+import alerts.AttackFxC;
+import alerts.GoodRng;
+import alerts.ToadScream;
 import interfaces.OBS;
 import interfaces.TwitchApi;
 import utilities.TwitchEventListener;
@@ -21,6 +22,7 @@ public class Controller {
         TwitchEventListener[] listeners = {
                 new AttackFxC(),
                 new GoodRng(),
+                new ToadScream(),
         };
         for (TwitchEventListener listener : listeners) {
             twitchApi.registerEventListener(listener);

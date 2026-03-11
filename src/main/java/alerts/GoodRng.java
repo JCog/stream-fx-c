@@ -1,4 +1,4 @@
-package alerts.points;
+package alerts;
 
 import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
 import utilities.AudioClip;
