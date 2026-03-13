@@ -1,8 +1,9 @@
-import alerts.AttackFxC;
+import alerts.BadRng;
 import alerts.GoodRng;
 import alerts.ToadScream;
 import interfaces.OBS;
 import interfaces.TwitchApi;
+import javafx.application.Platform;
 import utilities.TwitchEventListener;
 
 public class Controller {
@@ -17,10 +18,11 @@ public class Controller {
         String authToken = System.getenv("TWITCH_AUTH_TOKEN");
         String clientId = System.getenv("TWITCH_CLIENT_ID");
 
+        Platform.startup(() -> {});
         obs = new OBS(host, port, password);
         twitchApi = new TwitchApi(channel, authToken, clientId);
         TwitchEventListener[] listeners = {
-                new AttackFxC(),
+                new BadRng(),
                 new GoodRng(),
                 new ToadScream(),
         };
