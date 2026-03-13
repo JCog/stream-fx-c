@@ -7,15 +7,20 @@ import javax.sound.sampled.*;
 import java.io.File;
 
 public class AudioClip {
-    private final File file;
+    private final Media sound;
 
     public AudioClip(String path) {
-        file = new File(path);
+        sound = new Media(new File(path).toURI().toString());
     }
 
     public void playClip() {
-        Media sound = new Media(file.toURI().toString());
         MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.play();
+    }
+
+    public void playClip(Runnable stopCallback) {
+        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        mediaPlayer.setOnEndOfMedia(stopCallback);
         mediaPlayer.play();
     }
 }

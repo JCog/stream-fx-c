@@ -1,5 +1,6 @@
 import alerts.BadRng;
 import alerts.GoodRng;
+import alerts.MiiChannel;
 import alerts.ToadScream;
 import interfaces.OBS;
 import interfaces.TwitchApi;
@@ -24,6 +25,7 @@ public class Controller {
         TwitchEventListener[] listeners = {
                 new BadRng(),
                 new GoodRng(),
+                new MiiChannel(),
                 new ToadScream(),
         };
         for (TwitchEventListener listener : listeners) {
