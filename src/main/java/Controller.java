@@ -1,7 +1,4 @@
-import alerts.BadRng;
-import alerts.GoodRng;
-import alerts.MiiChannel;
-import alerts.ToadScream;
+import alerts.*;
 import interfaces.OBS;
 import interfaces.TwitchApi;
 import javafx.application.Platform;
@@ -26,6 +23,7 @@ public class Controller {
                 new BadRng().setRewardTrigger("Give streamer bad RNG"),
                 new GoodRng().setRewardTrigger("Give streamer good RNG"),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
+                new Nice().setRewardTrigger("Nice"),
                 new ToadScream().setRewardTrigger("Toad Scream"),
         };
         for (TwitchEventListener listener : listeners) {
