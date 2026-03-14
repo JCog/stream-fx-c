@@ -23,10 +23,10 @@ public class Controller {
         obs = new OBS(host, port, password);
         twitchApi = new TwitchApi(channel, authToken, clientId);
         TwitchEventListener[] listeners = {
-                new BadRng(),
-                new GoodRng(),
-                new MiiChannel(),
-                new ToadScream(),
+                new BadRng().setRewardTrigger("Give streamer bad RNG"),
+                new GoodRng().setRewardTrigger("Give streamer good RNG"),
+                new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
+                new ToadScream().setRewardTrigger("Toad Scream"),
         };
         for (TwitchEventListener listener : listeners) {
             twitchApi.registerEventListener(listener);

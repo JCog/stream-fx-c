@@ -1,19 +1,14 @@
 package alerts;
 
-import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
-import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
 import utilities.AudioClip;
-import utilities.TwitchEventListener;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-public class MiiChannel implements TwitchEventListener {
-    private static final String REWARD_NAME = "Mii Channel Theme";
+public class MiiChannel extends AlertBase {
     private static final String CLIP_NAME_FORMAT = "res/mii%d.wav";
-    private static final int BIT_AMOUNT = 5;
     private static final int CLIP_COUNT = 10;
 
     private final List<AudioClip> clips;
@@ -31,22 +26,9 @@ public class MiiChannel implements TwitchEventListener {
         nextClip = 0;
         stopped = true;
     }
-    
-    @Override
-    public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent channelPointsEvent) {
-        if (channelPointsEvent.getReward().getTitle().equals(REWARD_NAME)) {
-            trigger();
-        }
-    }
 
     @Override
-    public void onCheer(ChannelCheerEvent cheerEvent) {
-        if (cheerEvent.getBits() == BIT_AMOUNT) {
-            trigger();
-        }
-    }
-
-    private void trigger() {
+    protected void trigger() {
         clipQueue.add(clips.get(nextClip++));
         nextClip %= CLIP_COUNT;
         if (stopped) {
