@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class MiiChannel extends AlertBase {
-    private static final String CLIP_NAME_FORMAT = "res/mii%d.wav";
+    private static final String CLIP_NAME_FORMAT = "res/mii/mii%d.wav";
     private static final int CLIP_COUNT = 10;
 
     private final List<AudioClip> clips;
