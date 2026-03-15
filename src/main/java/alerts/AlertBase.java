@@ -4,6 +4,8 @@ import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
 import utilities.TwitchEventListener;
 
+import java.time.Instant;
+
 public abstract class AlertBase implements TwitchEventListener {
     private String rewardName = null;
     private Integer bitAmount = null;
@@ -38,5 +40,9 @@ public abstract class AlertBase implements TwitchEventListener {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException ignored) {}
+    }
+
+    protected void print(String log) {
+        System.out.println(Instant.now() + " " + log);
     }
 }

@@ -19,11 +19,12 @@ public class Controller {
         TwitchApi twitchApi = new TwitchApi(channel, authToken, clientId);
         TwitchEventListener[] listeners = {
                 new BadRng().setRewardTrigger("Give streamer bad RNG"),
+                new FishHead(obs).setRewardTrigger("Fish Announcer"),
                 new GoodRng().setRewardTrigger("Give streamer good RNG"),
+                new Helium(obs).setBitTrigger(150),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
                 new Nice().setRewardTrigger("Nice"),
                 new ToadScream().setRewardTrigger("Toad Scream"),
-                new FishHead(obs).setRewardTrigger("Fish Announcer"),
         };
         for (TwitchEventListener listener : listeners) {
             twitchApi.registerEventListener(listener);
