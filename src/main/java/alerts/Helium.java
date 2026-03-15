@@ -1,6 +1,7 @@
 package alerts;
 
 import interfaces.OBS;
+import utilities.AudioClip;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -8,15 +9,18 @@ import java.util.TimerTask;
 public class Helium extends AlertBase {
     private static final String SOURCE_NAME = "Mic";
     private static final String FILTER_NAME = "Helium";
+    private static final String DING_FILENAME = "res/ding.wav";
     private static final int INTERVAL_LENGTH = 60 * 1000;
 
     private final OBS obs;
+    private final AudioClip ding;
 
     private boolean active;
     private int queuedTriggers;
 
     public Helium(OBS obs) {
         this.obs = obs;
+        ding = new AudioClip(DING_FILENAME);
         active = false;
         queuedTriggers = 0;
     }
@@ -38,6 +42,7 @@ public class Helium extends AlertBase {
                 queuedTriggers--;
                 if (queuedTriggers == 0) {
                     timer.cancel();
+                    ding.playClip();
                     obs.setSourceFilterEnabled(SOURCE_NAME, FILTER_NAME, false);
                     active = false;
                 }
