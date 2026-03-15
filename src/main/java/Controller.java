@@ -5,8 +5,6 @@ import javafx.application.Platform;
 import utilities.TwitchEventListener;
 
 public class Controller {
-    private final OBS obs;
-    private final TwitchApi twitchApi;
 
     public Controller() {
         String host = System.getenv("OBS_HOST");
@@ -17,14 +15,15 @@ public class Controller {
         String clientId = System.getenv("TWITCH_CLIENT_ID");
 
         Platform.startup(() -> {});
-        obs = new OBS(host, port, password);
-        twitchApi = new TwitchApi(channel, authToken, clientId);
+        OBS obs = new OBS(host, port, password);
+        TwitchApi twitchApi = new TwitchApi(channel, authToken, clientId);
         TwitchEventListener[] listeners = {
                 new BadRng().setRewardTrigger("Give streamer bad RNG"),
                 new GoodRng().setRewardTrigger("Give streamer good RNG"),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
                 new Nice().setRewardTrigger("Nice"),
                 new ToadScream().setRewardTrigger("Toad Scream"),
+                new FishHead(obs).setRewardTrigger("Fish Announcer"),
         };
         for (TwitchEventListener listener : listeners) {
             twitchApi.registerEventListener(listener);

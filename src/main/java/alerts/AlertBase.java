@@ -33,4 +33,10 @@ public abstract class AlertBase implements TwitchEventListener {
     }
 
     protected abstract void trigger();
+
+    protected void wait(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ignored) {}
+    }
 }

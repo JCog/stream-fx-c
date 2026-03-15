@@ -6,12 +6,19 @@ import io.obswebsocket.community.client.message.response.filters.GetSourceFilter
 import io.obswebsocket.community.client.message.response.inputs.GetInputMuteResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemEnabledResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemIdResponse;
+import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemTransformResponse;
+import io.obswebsocket.community.client.model.SceneItem;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayDeque;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.*;
 
 public class OBS {
     private static final int TIMEOUT = 1000;
+    private static final int FRAMERATE = 60;
+
     private final OBSRemoteController obsRemote;
 
     private boolean ready = false;
@@ -168,6 +175,75 @@ public class OBS {
 
     public void setSourceFilterEnabled(String sourceName, String filterName, boolean enabled) {
         obsRemote.setSourceFilterEnabled(sourceName, filterName, enabled, TIMEOUT);
+    }
+
+    public SceneItem.Transform getSourceTransform(String sceneName, Number sourceId) {
+        CompletableFuture<GetSceneItemTransformResponse> future = CompletableFuture.supplyAsync(
+                () -> obsRemote.getSceneItemTransform(sceneName, sourceId, TIMEOUT)
+        );
+
+        GetSceneItemTransformResponse response;
+        try {
+            response = future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        }
+
+        if (!response.isSuccessful()) {
+            return null;
+        }
+        return response.getSceneItemTransform();
+    }
+
+    public void setSourceTransform(String sceneName, Number sourceId, SceneItem.Transform transform) {
+        obsRemote.setSceneItemTransform(sceneName, sourceId, transform, TIMEOUT);
+    }
+
+    public void moveSource(String sceneName, Number sourceId, float x, float y, int frames, boolean relative, Runnable callback) {
+        SceneItem.Transform sourceTransform = getSourceTransform(sceneName, sourceId);
+        Float startX = sourceTransform.getPositionX();
+        Float startY = sourceTransform.getPositionY();
+        float endX = relative ? startX + x : x;
+        float endY = relative ? startY + y : y;
+
+        // move instantly, run callback, return
+        if (frames == 0) {
+            sourceTransform.setPositionX(endX);
+            sourceTransform.setPositionY(endY);
+            setSourceTransform(sceneName, sourceId, sourceTransform);
+            if (callback != null) {
+                callback.run();
+            }
+            return;
+        }
+
+        // move over time
+        float interX = (endX - startX) / frames;
+        float interY = (endY - startY) / frames;
+        Queue<Float> queueX = new ArrayDeque<>();
+        Queue<Float> queueY = new ArrayDeque<>();
+        for (int i = 1; i < frames; i++) {
+            queueX.add(startX + interX * i);
+            queueY.add(startY + interY * i);
+        }
+        queueX.add(endX);
+        queueY.add(endY);
+
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                sourceTransform.setPositionX(queueX.poll());
+                sourceTransform.setPositionY(queueY.poll());
+                setSourceTransform(sceneName, sourceId, sourceTransform);
+                if (queueX.isEmpty()) {
+                    timer.cancel();
+                    if (callback != null) {
+                        callback.run();
+                    }
+                }
+            }
+        }, 0, 1000 / FRAMERATE);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
