@@ -9,10 +9,7 @@ import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItem
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemTransformResponse;
 import io.obswebsocket.community.client.model.SceneItem;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.*;
 
 public class OBS {
@@ -20,12 +17,14 @@ public class OBS {
     private static final int FRAMERATE = 60;
 
     private final OBSRemoteController obsRemote;
+    private final Map<String, Map<String, Number>> sourceIdCache;
 
     private boolean ready = false;
     private String sceneCurrent = null;
     private String scenePrev = null;
 
     public OBS(String host, int port, String password) {
+        sourceIdCache = new HashMap<>();
         obsRemote = OBSRemoteController.builder()
                 .host(host)
                 .port(port)
@@ -56,6 +55,19 @@ public class OBS {
     }
 
     public Number getSourceId(String sceneName, String sourceName) {
+        // return cached sourceId if it exists
+        Map<String, Number> sceneMap = sourceIdCache.get(sceneName);
+        if (sceneMap == null) {
+            sceneMap = new HashMap<>();
+            sourceIdCache.put(sceneName, sceneMap);
+        } else {
+            Number sourceId = sceneMap.get(sourceName);
+            if (sourceId != null) {
+                return sourceId;
+            }
+        }
+
+        // fetch sourceId from OBS otherwise
         CompletableFuture<GetSceneItemIdResponse> future = CompletableFuture.supplyAsync(
                 () -> obsRemote.getSceneItemId(sceneName, sourceName, 0, TIMEOUT)
         );
@@ -69,6 +81,8 @@ public class OBS {
         if (!response.isSuccessful()) {
             return null;
         }
+        // cache sourceId
+        sceneMap.put(sourceName, response.getSceneItemId());
         return response.getSceneItemId();
     }
 
