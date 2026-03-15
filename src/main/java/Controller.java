@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import utilities.TwitchEventListener;
 
 public class Controller {
-
     public Controller() {
         String host = System.getenv("OBS_HOST");
         int port = Integer.parseInt(System.getenv("OBS_PORT"));
@@ -23,6 +22,7 @@ public class Controller {
                 new GoodRng().setRewardTrigger("Give streamer good RNG"),
                 new Helium(obs).setBitTrigger(150),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
+                new MuteMic(obs).setBitTrigger(140),
                 new Nice().setRewardTrigger("Nice"),
                 new ToadScream().setRewardTrigger("Toad Scream"),
         };
