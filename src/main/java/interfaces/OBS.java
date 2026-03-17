@@ -8,6 +8,7 @@ import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItem
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemIdResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemTransformResponse;
 import io.obswebsocket.community.client.model.SceneItem;
+import utilities.Controller;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -243,21 +244,20 @@ public class OBS {
         queueX.add(endX);
         queueY.add(endY);
 
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        Controller.getScheduler().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 sourceTransform.setPositionX(queueX.poll());
                 sourceTransform.setPositionY(queueY.poll());
                 setSourceTransform(sceneName, sourceId, sourceTransform);
                 if (queueX.isEmpty()) {
-                    timer.cancel();
+                    this.cancel();
                     if (callback != null) {
                         callback.run();
                     }
                 }
             }
-        }, 0, 1000 / FRAMERATE);
+        }, 0, 1000 / FRAMERATE, TimeUnit.MILLISECONDS);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,9 +2,10 @@ package alerts;
 
 import interfaces.OBS;
 import utilities.AudioClip;
+import utilities.Controller;
 
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class MuteMic extends AlertBase {
     private static final String MIC_NAME = "Mic";
@@ -37,19 +38,18 @@ public class MuteMic extends AlertBase {
         obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, true);
         active = true;
 
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        Controller.getScheduler().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 queuedTriggers--;
                 if (queuedTriggers == 0) {
-                    timer.cancel();
+                    this.cancel();
                     ding.playClip();
                     obs.setAudioSourceMuted(MIC_NAME, false);
                     obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, false);
                     active = false;
                 }
             }
-        }, INTERVAL_LENGTH, INTERVAL_LENGTH);
+        }, INTERVAL_LENGTH, INTERVAL_LENGTH, TimeUnit.MILLISECONDS);
     }
 }
