@@ -1,9 +1,9 @@
-package alerts;
+package dev.jcog.streamfxc.alerts;
 
 import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
-import utilities.Controller;
-import utilities.TwitchEventListener;
+import dev.jcog.streamfxc.interfaces.Controller;
+import dev.jcog.streamfxc.util.TwitchEventListener;
 
 import java.time.Instant;
 import java.util.ArrayDeque;

@@ -1,4 +1,4 @@
-package interfaces;
+package dev.jcog.streamfxc.interfaces;
 
 import io.obswebsocket.community.client.OBSRemoteController;
 import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
@@ -8,9 +8,8 @@ import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItem
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemIdResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemTransformResponse;
 import io.obswebsocket.community.client.model.SceneItem;
-import utilities.AlertFuture;
-import utilities.AlertTask;
-import utilities.Controller;
+import dev.jcog.streamfxc.util.AlertFuture;
+import dev.jcog.streamfxc.util.AlertTask;
 
 import java.util.*;
 import java.util.concurrent.*;

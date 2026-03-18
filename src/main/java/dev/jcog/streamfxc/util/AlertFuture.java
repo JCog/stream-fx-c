@@ -1,4 +1,4 @@
-package utilities;
+package dev.jcog.streamfxc.util;
 
 public class AlertFuture {
     private volatile boolean waiting;

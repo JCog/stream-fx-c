@@ -1,6 +1,6 @@
-package alerts;
+package dev.jcog.streamfxc.alerts;
 
-import utilities.AudioFile;
+import dev.jcog.streamfxc.util.AudioFile;
 
 public class AudioAlert extends Alert {
     private final AudioFile clip;

@@ -1,5 +1,6 @@
-package utilities;
+package dev.jcog.streamfxc.util;
 
+import dev.jcog.streamfxc.interfaces.Controller;
 import javafx.scene.media.AudioClip;
 
 import javax.sound.sampled.AudioFormat;

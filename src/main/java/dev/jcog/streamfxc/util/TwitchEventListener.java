@@ -1,4 +1,4 @@
-package utilities;
+package dev.jcog.streamfxc.util;
 
 import com.github.twitch4j.eventsub.events.*;
 

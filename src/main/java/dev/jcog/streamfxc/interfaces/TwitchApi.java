@@ -1,4 +1,4 @@
-package interfaces;
+package dev.jcog.streamfxc.interfaces;
 
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.api.IEventManager;
@@ -12,7 +12,7 @@ import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.UserList;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.jetbrains.annotations.Nullable;
-import utilities.TwitchEventListener;
+import dev.jcog.streamfxc.util.TwitchEventListener;
 
 import java.util.Collections;
 

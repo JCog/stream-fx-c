@@ -1,8 +1,6 @@
-package utilities;
+package dev.jcog.streamfxc.interfaces;
 
-import alerts.*;
-import interfaces.OBS;
-import interfaces.TwitchApi;
+import dev.jcog.streamfxc.alerts.*;
 import javafx.application.Platform;
 
 import java.util.concurrent.Executors;

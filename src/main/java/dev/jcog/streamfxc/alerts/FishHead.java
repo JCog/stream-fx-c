@@ -1,7 +1,7 @@
-package alerts;
+package dev.jcog.streamfxc.alerts;
 
-import interfaces.OBS;
-import utilities.AudioFile;
+import dev.jcog.streamfxc.interfaces.OBS;
+import dev.jcog.streamfxc.util.AudioFile;
 
 import java.util.ArrayList;
 import java.util.List;
