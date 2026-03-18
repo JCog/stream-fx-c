@@ -1,14 +1,14 @@
 package alerts;
 
-import utilities.AudioClip;
+import utilities.AudioFile;
 
 public class Nice extends AlertBase {
     private static final String CLIP_FILENAME = "res/attack_fx_c.wav";
 
-    private final AudioClip clip;
+    private final AudioFile clip;
 
     public Nice() {
-        clip = new AudioClip(CLIP_FILENAME);
+        clip = new AudioFile(CLIP_FILENAME);
     }
     
     @Override

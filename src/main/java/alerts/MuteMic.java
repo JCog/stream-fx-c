@@ -1,8 +1,8 @@
 package alerts;
 
 import interfaces.OBS;
-import utilities.AudioClip;
 import utilities.Controller;
+import utilities.AudioFile;
 
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -15,14 +15,14 @@ public class MuteMic extends AlertBase {
     private static final int INTERVAL_LENGTH = 60 * 1000;
 
     private final OBS obs;
-    private final AudioClip ding;
+    private final AudioFile ding;
 
     private boolean active;
     private int queuedTriggers;
 
     public MuteMic(OBS obs) {
         this.obs = obs;
-        ding = new AudioClip(DING_FILENAME);
+        ding = new AudioFile(DING_FILENAME);
         active = false;
         queuedTriggers = 0;
     }

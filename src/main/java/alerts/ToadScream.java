@@ -1,14 +1,14 @@
 package alerts;
 
-import utilities.AudioClip;
+import utilities.AudioFile;
 
 public class ToadScream extends AlertBase {
     private static final String CLIP_FILENAME = "res/toad_scream.wav";
 
-    private final AudioClip clip;
+    private final AudioFile clip;
 
     public ToadScream() {
-        clip = new AudioClip(CLIP_FILENAME);
+        clip = new AudioFile(CLIP_FILENAME);
     }
 
     @Override

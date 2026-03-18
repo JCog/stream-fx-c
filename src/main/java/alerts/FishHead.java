@@ -1,7 +1,7 @@
 package alerts;
 
 import interfaces.OBS;
-import utilities.AudioClip;
+import utilities.AudioFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class FishHead extends AlertBase {
     private static final int CLIP_COUNT = 12;
 
     private final OBS obs;
-    private final List<AudioClip> clips;
+    private final List<AudioFile> clips;
     private final Random random;
 
     private int queuedTriggers;
@@ -27,10 +27,10 @@ public class FishHead extends AlertBase {
         playing = false;
         clips = new ArrayList<>();
         for (int i = 0; i < CLIP_COUNT; i++) {
-            clips.add(new AudioClip(String.format(CLIP_NAME_FORMAT, i)));
+            clips.add(new AudioFile(String.format(CLIP_NAME_FORMAT, i)));
         }
     }
-    
+
     @Override
     protected void trigger() {
         if (playing) {

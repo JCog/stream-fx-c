@@ -1,7 +1,7 @@
 package alerts;
 
 import interfaces.OBS;
-import utilities.AudioClip;
+import utilities.AudioFile;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -13,14 +13,14 @@ public class Helium extends AlertBase {
     private static final int INTERVAL_LENGTH = 60 * 1000;
 
     private final OBS obs;
-    private final AudioClip ding;
+    private final AudioFile ding;
 
     private boolean active;
     private int queuedTriggers;
 
     public Helium(OBS obs) {
         this.obs = obs;
-        ding = new AudioClip(DING_FILENAME);
+        ding = new AudioFile(DING_FILENAME);
         active = false;
         queuedTriggers = 0;
     }
