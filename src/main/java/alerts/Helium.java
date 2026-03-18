@@ -3,7 +3,7 @@ package alerts;
 import interfaces.OBS;
 import utilities.AudioFile;
 
-public class Helium extends AlertBase {
+public class Helium extends Alert {
     private static final String SOURCE_NAME = "Mic";
     private static final String FILTER_NAME = "Helium";
     private static final String DING_FILENAME = "res/ding.wav";

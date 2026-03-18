@@ -2,7 +2,7 @@ package alerts;
 
 import utilities.AudioFile;
 
-public class AudioAlert extends AlertBase {
+public class AudioAlert extends Alert {
     private final AudioFile clip;
 
     public AudioAlert(String filePath) {

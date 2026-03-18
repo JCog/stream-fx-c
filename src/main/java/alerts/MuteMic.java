@@ -3,7 +3,7 @@ package alerts;
 import interfaces.OBS;
 import utilities.AudioFile;
 
-public class MuteMic extends AlertBase {
+public class MuteMic extends Alert {
     private static final String MIC_NAME = "Mic";
     private static final String SCENE_NAME = "Common - DSLR";
     private static final String SOURCE_NAME = "Mute Icon";

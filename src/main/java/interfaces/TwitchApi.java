@@ -55,9 +55,13 @@ public class TwitchApi {
         ));
     }
 
-    public void registerEventListener(TwitchEventListener eventListener) {
+    public void registerRewardListener(TwitchEventListener eventListener) {
         IEventManager eventSubEvents = twitchClient.getEventSocket().getEventManager();
         eventSubEvents.onEvent(CustomRewardRedemptionAddEvent.class, eventListener::onChannelPointsRedemption);
+    }
+
+    public void registerBitsListener(TwitchEventListener eventListener) {
+        IEventManager eventSubEvents = twitchClient.getEventSocket().getEventManager();
         eventSubEvents.onEvent(ChannelCheerEvent.class, eventListener::onCheer);
     }
 

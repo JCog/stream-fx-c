@@ -6,7 +6,7 @@ import utilities.AudioFile;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MiiChannel extends AlertBase {
+public class MiiChannel extends Alert {
     private static final String CLIP_NAME_FORMAT = "res/mii/mii%d.wav";
     private static final int CLIP_COUNT = 10;
 

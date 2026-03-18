@@ -22,7 +22,7 @@ public class Controller {
         Platform.startup(() -> {});
         OBS obs = new OBS(host, port, password);
         TwitchApi twitchApi = new TwitchApi(channel, authToken, clientId);
-        TwitchEventListener[] listeners = {
+        Alert[] alertList = {
                 new AudioAlert("res/bandit_fail.wav").setRewardTrigger("Give streamer bad RNG"),
                 new AudioAlert("res/close_call.wav").setRewardTrigger("Give streamer good RNG"),
                 new AudioAlert("res/attack_fx_c.wav").setRewardTrigger("Nice"),
@@ -34,8 +34,13 @@ public class Controller {
                 new Helium(obs).setBitTrigger(150).setQueue("Mic"),
                 new MuteMic(obs).setBitTrigger(140).setQueue("Mic"),
         };
-        for (TwitchEventListener listener : listeners) {
-            twitchApi.registerEventListener(listener);
+        for (Alert alert : alertList) {
+            if (alert.getRewardName() != null) {
+                twitchApi.registerRewardListener(alert);
+            }
+            if (alert.getBitAmount() != null) {
+                twitchApi.registerBitsListener(alert);
+            }
         }
     }
 

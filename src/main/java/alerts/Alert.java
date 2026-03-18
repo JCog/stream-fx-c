@@ -12,15 +12,15 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-public abstract class AlertBase implements TwitchEventListener {
-    private static final Map<String, Queue<AlertBase>> QUEUE_MAP = new HashMap<>();
+public abstract class Alert implements TwitchEventListener {
+    private static final Map<String, Queue<Alert>> QUEUE_MAP = new HashMap<>();
 
     /* all identical alerts are queued amongst themselves unless overridden by setQueue(). onTriggered() is called once
     * for each time an alert is triggered, but onFinished() is only called once either the queue is empty or the next
     * alert in the queue is of a different type. */
-    private static void queueAlert(AlertBase alert) {
+    private static void queueAlert(Alert alert) {
         String queueName = alert.queueName == null ? alert.getClass().toString() : alert.queueName;
-        Queue<AlertBase> queue = QUEUE_MAP.computeIfAbsent(queueName, k -> new ArrayDeque<>());
+        Queue<Alert> queue = QUEUE_MAP.computeIfAbsent(queueName, k -> new ArrayDeque<>());
 
         boolean active = !queue.isEmpty();
         queue.add(alert);
@@ -29,7 +29,7 @@ public abstract class AlertBase implements TwitchEventListener {
         }
         Controller.getScheduler().schedule(() -> {
             while (!queue.isEmpty()) {
-                AlertBase currentAlert = queue.peek();
+                Alert currentAlert = queue.peek();
                 currentAlert.onTrigger();
                 queue.poll();
                 if (queue.isEmpty() || queue.peek().getClass() != currentAlert.getClass()) {
@@ -45,19 +45,27 @@ public abstract class AlertBase implements TwitchEventListener {
     private Integer bitAmount = null;
     private String queueName = null;
 
-    public AlertBase setRewardTrigger(String rewardName) {
+    public Alert setRewardTrigger(String rewardName) {
         this.rewardName = rewardName;
         return this;
     }
 
-    public AlertBase setBitTrigger(int bitAmount) {
+    public Alert setBitTrigger(int bitAmount) {
         this.bitAmount = bitAmount;
         return this;
     }
 
-    public AlertBase setQueue(String queueName) {
+    public Alert setQueue(String queueName) {
         this.queueName = queueName;
         return this;
+    }
+
+    public String getRewardName() {
+        return rewardName;
+    }
+
+    public Integer getBitAmount() {
+        return bitAmount;
     }
 
     @Override
