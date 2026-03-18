@@ -23,14 +23,16 @@ public class Controller {
         OBS obs = new OBS(host, port, password);
         TwitchApi twitchApi = new TwitchApi(channel, authToken, clientId);
         TwitchEventListener[] listeners = {
-                new BadRng().setRewardTrigger("Give streamer bad RNG"),
+                new AudioAlert("res/bandit_fail.wav").setRewardTrigger("Give streamer bad RNG"),
+                new AudioAlert("res/close_call.wav").setRewardTrigger("Give streamer good RNG"),
+                new AudioAlert("res/attack_fx_c.wav").setRewardTrigger("Nice"),
+                new AudioAlert("res/toad_scream.wav").setRewardTrigger("Toad Scream"),
+
                 new FishHead(obs).setRewardTrigger("Fish Announcer"),
-                new GoodRng().setRewardTrigger("Give streamer good RNG"),
-                new Helium(obs).setBitTrigger(150).setQueue("Mic"),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
+
+                new Helium(obs).setBitTrigger(150).setQueue("Mic"),
                 new MuteMic(obs).setBitTrigger(140).setQueue("Mic"),
-                new Nice().setRewardTrigger("Nice"),
-                new ToadScream().setRewardTrigger("Toad Scream"),
         };
         for (TwitchEventListener listener : listeners) {
             twitchApi.registerEventListener(listener);

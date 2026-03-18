@@ -73,6 +73,6 @@ public class TwitchApi {
         if (userList.getUsers().isEmpty()) {
             return null;
         }
-        return userList.getUsers().get(0);
+        return userList.getUsers().getFirst();
     }
 }
