@@ -22,7 +22,9 @@ public class FishHead extends AlertBase {
         random = new Random();
         clips = new ArrayList<>();
         for (int i = 0; i < CLIP_COUNT; i++) {
-            clips.add(new AudioFile(String.format(CLIP_NAME_FORMAT, i)));
+            AudioFile clip = new AudioFile(String.format(CLIP_NAME_FORMAT, i));
+            clip.setVolume(0.5d);
+            clips.add(clip);
         }
     }
 

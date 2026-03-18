@@ -34,4 +34,9 @@ public class AudioFile {
         clip.play();
         return future;
     }
+
+    // ranges from 0 to 1
+    public void setVolume(double volume) {
+        clip.setVolume(volume);
+    }
 }
