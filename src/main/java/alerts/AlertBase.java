@@ -6,11 +6,44 @@ import utilities.Controller;
 import utilities.TwitchEventListener;
 
 import java.time.Instant;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AlertBase implements TwitchEventListener {
+    private static final Map<String, Queue<AlertBase>> QUEUE_MAP = new HashMap<>();
+
+    /* all identical alerts are queued amongst themselves unless overridden by setQueue(). onTriggered() is called once
+    * for each time an alert is triggered, but onFinished() is only called once either the queue is empty or the next
+    * alert in the queue is of a different type. */
+    private static void queueAlert(AlertBase alert) {
+        String queueName = alert.queueName == null ? alert.getClass().toString() : alert.queueName;
+        Queue<AlertBase> queue = QUEUE_MAP.computeIfAbsent(queueName, k -> new ArrayDeque<>());
+
+        boolean active = !queue.isEmpty();
+        queue.add(alert);
+        if (active) {
+            return;
+        }
+        Controller.getScheduler().schedule(() -> {
+            while (!queue.isEmpty()) {
+                AlertBase currentAlert = queue.peek();
+                currentAlert.onTrigger();
+                queue.poll();
+                if (queue.isEmpty() || queue.peek().getClass() != currentAlert.getClass()) {
+                    currentAlert.onFinished();
+                }
+            }
+        }, 0, TimeUnit.MILLISECONDS);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private String rewardName = null;
     private Integer bitAmount = null;
+    private String queueName = null;
 
     public AlertBase setRewardTrigger(String rewardName) {
         this.rewardName = rewardName;
@@ -22,21 +55,28 @@ public abstract class AlertBase implements TwitchEventListener {
         return this;
     }
 
+    public AlertBase setQueue(String queueName) {
+        this.queueName = queueName;
+        return this;
+    }
+
     @Override
     public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent channelPointsEvent) {
         if (channelPointsEvent.getReward().getTitle().equals(rewardName)) {
-            Controller.getScheduler().schedule(this::trigger, 0, TimeUnit.MILLISECONDS);
+            queueAlert(this);
         }
     }
 
     @Override
     public void onCheer(ChannelCheerEvent cheerEvent) {
         if (cheerEvent.getBits().equals(bitAmount)) {
-            Controller.getScheduler().schedule(this::trigger, 0, TimeUnit.MILLISECONDS);
+            queueAlert(this);
         }
     }
 
-    protected abstract void trigger();
+    protected abstract void onTrigger();
+
+    protected abstract void onFinished();
 
     protected void wait(int millis) {
         try {
@@ -44,7 +84,7 @@ public abstract class AlertBase implements TwitchEventListener {
         } catch (InterruptedException ignored) {}
     }
 
-    protected void print(String log) {
+    protected static void print(String log) {
         System.out.println(Instant.now() + " " + log);
     }
 }

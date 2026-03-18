@@ -17,14 +17,9 @@ public class FishHead extends AlertBase {
     private final List<AudioFile> clips;
     private final Random random;
 
-    private int queuedTriggers;
-    private boolean playing;
-
     public FishHead(OBS obs) {
         this.obs = obs;
         random = new Random();
-        queuedTriggers = 0;
-        playing = false;
         clips = new ArrayList<>();
         for (int i = 0; i < CLIP_COUNT; i++) {
             clips.add(new AudioFile(String.format(CLIP_NAME_FORMAT, i)));
@@ -32,16 +27,7 @@ public class FishHead extends AlertBase {
     }
 
     @Override
-    protected void trigger() {
-        if (playing) {
-            queuedTriggers++;
-            return;
-        }
-        playing = true;
-        playNext();
-    }
-
-    private void playNext() {
+    protected void onTrigger() {
         Number sourceId = obs.getSourceId(SCENE_NAME, SOURCE_NAME);
         obs.moveSource(SCENE_NAME, sourceId, 0, 0, 0, false);
         obs.setSourceEnabled(SCENE_NAME, sourceId, true);
@@ -51,11 +37,10 @@ public class FishHead extends AlertBase {
 
         obs.setSourceEnabled(SCENE_NAME, sourceId, false);
         wait(500);
-        if (queuedTriggers > 0) {
-            queuedTriggers--;
-            playNext();
-        } else {
-            playing = false;
-        }
+    }
+
+    @Override
+    protected void onFinished() {
+
     }
 }

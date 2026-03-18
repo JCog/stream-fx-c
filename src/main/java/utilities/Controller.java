@@ -26,9 +26,9 @@ public class Controller {
                 new BadRng().setRewardTrigger("Give streamer bad RNG"),
                 new FishHead(obs).setRewardTrigger("Fish Announcer"),
                 new GoodRng().setRewardTrigger("Give streamer good RNG"),
-                new Helium(obs).setBitTrigger(150),
+                new Helium(obs).setBitTrigger(150).setQueue("Mic"),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
-                new MuteMic(obs).setBitTrigger(140),
+                new MuteMic(obs).setBitTrigger(140).setQueue("Mic"),
                 new Nice().setRewardTrigger("Nice"),
                 new ToadScream().setRewardTrigger("Toad Scream"),
         };

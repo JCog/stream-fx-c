@@ -12,7 +12,12 @@ public class BadRng extends AlertBase {
     }
     
     @Override
-    protected void trigger() {
+    protected void onTrigger() {
         clip.playClip();
+    }
+
+    @Override
+    protected void onFinished() {
+
     }
 }
