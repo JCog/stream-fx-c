@@ -2,9 +2,11 @@ package alerts;
 
 import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
+import utilities.Controller;
 import utilities.TwitchEventListener;
 
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 public abstract class AlertBase implements TwitchEventListener {
     private String rewardName = null;
@@ -23,14 +25,14 @@ public abstract class AlertBase implements TwitchEventListener {
     @Override
     public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent channelPointsEvent) {
         if (channelPointsEvent.getReward().getTitle().equals(rewardName)) {
-            trigger();
+            Controller.getScheduler().schedule(this::trigger, 0, TimeUnit.MILLISECONDS);
         }
     }
 
     @Override
     public void onCheer(ChannelCheerEvent cheerEvent) {
         if (cheerEvent.getBits().equals(bitAmount)) {
-            trigger();
+            Controller.getScheduler().schedule(this::trigger, 0, TimeUnit.MILLISECONDS);
         }
     }
 
