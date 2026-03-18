@@ -28,12 +28,10 @@ public class AudioFile {
         clip = new AudioClip(file.toURI().toString());
     }
 
-    public void playClip() {
+    public AlertFuture playClip() {
+        AlertFuture future = new AlertFuture();
+        Controller.getScheduler().schedule(future::complete, duration, TimeUnit.MILLISECONDS);
         clip.play();
-    }
-
-    public void playClip(Runnable onFinished) {
-        Controller.getScheduler().schedule(onFinished, duration, TimeUnit.MILLISECONDS);
-        clip.play();
+        return future;
     }
 }

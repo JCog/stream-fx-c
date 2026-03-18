@@ -43,18 +43,12 @@ public class FishHead extends AlertBase {
 
     private void playNext() {
         Number sourceId = obs.getSourceId(SCENE_NAME, SOURCE_NAME);
-        obs.moveSource(SCENE_NAME, sourceId, 0, 0, 0, false, null);
+        obs.moveSource(SCENE_NAME, sourceId, 0, 0, 0, false);
         obs.setSourceEnabled(SCENE_NAME, sourceId, true);
-        clips.get(random.nextInt(CLIP_COUNT)).playClip(this::hideFish);
-    }
+        clips.get(random.nextInt(CLIP_COUNT)).playClip().block();
 
-    private void hideFish() {
-        Number sourceId = obs.getSourceId(SCENE_NAME, SOURCE_NAME);
-        obs.moveSource(SCENE_NAME, sourceId, 400, 0, 60, false, this::cleanup);
-    }
+        obs.moveSource(SCENE_NAME, sourceId, 400, 0, 60, false).block();
 
-    private void cleanup() {
-        Number sourceId = obs.getSourceId(SCENE_NAME, SOURCE_NAME);
         obs.setSourceEnabled(SCENE_NAME, sourceId, false);
         wait(500);
         if (queuedTriggers > 0) {

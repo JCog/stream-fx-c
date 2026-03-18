@@ -8,6 +8,8 @@ import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItem
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemIdResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemTransformResponse;
 import io.obswebsocket.community.client.model.SceneItem;
+import utilities.AlertFuture;
+import utilities.AlertTask;
 import utilities.Controller;
 
 import java.util.*;
@@ -214,7 +216,14 @@ public class OBS {
         obsRemote.setSceneItemTransform(sceneName, sourceId, transform, TIMEOUT);
     }
 
-    public void moveSource(String sceneName, Number sourceId, float x, float y, int frames, boolean relative, Runnable callback) {
+    public AlertFuture moveSource(
+            String sceneName,
+            Number sourceId,
+            float x,
+            float y,
+            int frames,
+            boolean relative
+    ) {
         SceneItem.Transform sourceTransform = getSourceTransform(sceneName, sourceId);
         Float startX = sourceTransform.getPositionX();
         Float startY = sourceTransform.getPositionY();
@@ -226,10 +235,7 @@ public class OBS {
             sourceTransform.setPositionX(endX);
             sourceTransform.setPositionY(endY);
             setSourceTransform(sceneName, sourceId, sourceTransform);
-            if (callback != null) {
-                callback.run();
-            }
-            return;
+            return AlertFuture.getCompletedFuture();
         }
 
         // move over time
@@ -244,20 +250,20 @@ public class OBS {
         queueX.add(endX);
         queueY.add(endY);
 
-        Controller.getScheduler().scheduleAtFixedRate(new TimerTask() {
+        AlertFuture future = new AlertFuture();
+        Controller.getScheduler().scheduleAtFixedRate(new AlertTask() {
             @Override
-            public void run() {
+            public void runTask() {
                 sourceTransform.setPositionX(queueX.poll());
                 sourceTransform.setPositionY(queueY.poll());
                 setSourceTransform(sceneName, sourceId, sourceTransform);
                 if (queueX.isEmpty()) {
                     this.cancel();
-                    if (callback != null) {
-                        callback.run();
-                    }
+                    future.complete();
                 }
             }
         }, 0, 1000 / FRAMERATE, TimeUnit.MILLISECONDS);
+        return future;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -43,6 +43,7 @@ public class MiiChannel extends AlertBase {
             stopped = true;
             return;
         }
-        clip.playClip(this::playNextClip);
+        clip.playClip().block();
+        playNextClip();
     }
 }

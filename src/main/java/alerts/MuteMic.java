@@ -1,10 +1,10 @@
 package alerts;
 
 import interfaces.OBS;
+import utilities.AlertTask;
 import utilities.Controller;
 import utilities.AudioFile;
 
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class MuteMic extends AlertBase {
@@ -38,9 +38,9 @@ public class MuteMic extends AlertBase {
         obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, true);
         active = true;
 
-        Controller.getScheduler().scheduleAtFixedRate(new TimerTask() {
+        Controller.getScheduler().scheduleAtFixedRate(new AlertTask() {
             @Override
-            public void run() {
+            public void runTask() {
                 queuedTriggers--;
                 if (queuedTriggers == 0) {
                     this.cancel();

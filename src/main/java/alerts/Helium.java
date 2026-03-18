@@ -1,10 +1,11 @@
 package alerts;
 
 import interfaces.OBS;
+import utilities.AlertTask;
 import utilities.AudioFile;
+import utilities.Controller;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class Helium extends AlertBase {
     private static final String SOURCE_NAME = "Mic";
@@ -35,18 +36,17 @@ public class Helium extends AlertBase {
         obs.setSourceFilterEnabled(SOURCE_NAME, FILTER_NAME, true);
         active = true;
 
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        Controller.getScheduler().scheduleAtFixedRate(new AlertTask() {
             @Override
-            public void run() {
+            public void runTask() {
                 queuedTriggers--;
                 if (queuedTriggers == 0) {
-                    timer.cancel();
+                    this.cancel();
                     ding.playClip();
                     obs.setSourceFilterEnabled(SOURCE_NAME, FILTER_NAME, false);
                     active = false;
                 }
             }
-        }, INTERVAL_LENGTH, INTERVAL_LENGTH);
+        }, INTERVAL_LENGTH, INTERVAL_LENGTH, TimeUnit.MILLISECONDS);
     }
 }
