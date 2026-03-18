@@ -12,7 +12,6 @@ import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.UserList;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.jetbrains.annotations.Nullable;
-import utilities.StartupException;
 import utilities.TwitchEventListener;
 
 import java.util.Collections;
@@ -36,15 +35,16 @@ public class TwitchApi {
                 .withEnableEventSocket(true)
                 .build();
 
+        User tempUser = null;
         try {
-            user = getUserByUsername(channel);
-        } catch (HystrixRuntimeException e) {
-            throw new StartupException("unable to authenticate with Twitch Helix API");
-        }
-        if (user == null) {
+            tempUser = getUserByUsername(channel);
+        } catch (HystrixRuntimeException ignored) {
             out.println("Error retrieving Twitch channel information");
+        }
+        if (tempUser == null) {
             System.exit(1);
         }
+        user = tempUser;
 
         IEventSubSocket eventSocket = twitchClient.getEventSocket();
         eventSocket.register(SubscriptionTypes.CHANNEL_CHEER.prepareSubscription(
