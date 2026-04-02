@@ -28,7 +28,7 @@ public class Controller {
                 new AudioAlert("res/bandit_fail.wav").setRewardTrigger("Give streamer bad RNG"),
                 new AudioAlert("res/close_call.wav").setRewardTrigger("Give streamer good RNG"),
                 new AudioAlert("res/attack_fx_c.wav").setRewardTrigger("Nice"),
-                new AudioAlert("res/toad_scream.wav").setRewardTrigger("Toad Scream"),
+                new AudioAlert("res/toad_scream.wav", 0.5d).setRewardTrigger("Toad Scream"),
 
                 new FishHead(obs).setRewardTrigger("Fish Announcer"),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
