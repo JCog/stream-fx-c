@@ -1,13 +1,15 @@
 package dev.jcog.streamfxc.interfaces;
 
 import dev.jcog.streamfxc.alerts.*;
-import javafx.application.Platform;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class Controller {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
+
+    private final OBS obs;
+    private final TwitchApi twitchApi;
 
     public Controller() {
         String host = System.getenv("OBS_HOST");
@@ -17,9 +19,11 @@ public class Controller {
         String authToken = System.getenv("TWITCH_AUTH_TOKEN");
         String clientId = System.getenv("TWITCH_CLIENT_ID");
 
-        Platform.startup(() -> {});
-        OBS obs = new OBS(host, port, password);
-        TwitchApi twitchApi = new TwitchApi(channel, authToken, clientId);
+        obs = new OBS(host, port, password);
+        twitchApi = new TwitchApi(channel, authToken, clientId);
+    }
+
+    public void createAlerts() {
         Alert[] alertList = {
                 new AudioAlert("res/bandit_fail.wav").setRewardTrigger("Give streamer bad RNG"),
                 new AudioAlert("res/close_call.wav").setRewardTrigger("Give streamer good RNG"),
@@ -40,6 +44,12 @@ public class Controller {
                 twitchApi.registerBitsListener(alert);
             }
         }
+    }
+
+    public void closeAll() {
+        scheduler.shutdown();
+        twitchApi.close();
+        obs.close();
     }
 
     public static ScheduledExecutorService getScheduler() {

@@ -39,10 +39,6 @@ public class OBS {
         obsRemote.connect();
     }
 
-    public boolean isReady() {
-        return ready;
-    }
-
     public void init() {
         ready = true;
         obsRemote.getCurrentProgramScene(getCurrentProgramSceneResponse -> {
@@ -50,6 +46,11 @@ public class OBS {
                 sceneCurrent = getCurrentProgramSceneResponse.getCurrentProgramSceneName();
             }
         });
+    }
+
+    public void close() {
+        // can't quite figure out if this is the right way to do this, but it seems to work fine?
+        obsRemote.stop();
     }
 
     public void changeScenes(String sceneName) {
