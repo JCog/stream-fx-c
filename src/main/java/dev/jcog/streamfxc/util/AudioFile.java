@@ -2,6 +2,8 @@ package dev.jcog.streamfxc.util;
 
 import dev.jcog.streamfxc.misc.Controller;
 import javafx.scene.media.AudioClip;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class AudioFile {
+    private static final Logger log = LoggerFactory.getLogger(AudioFile.class);
+
     private final AudioClip clip;
     private final long duration; // milliseconds
 
@@ -20,7 +24,7 @@ public class AudioFile {
         try {
             format = AudioSystem.getAudioInputStream(file).getFormat();
         } catch (UnsupportedAudioFileException | IOException e) {
-            System.out.println("Error loading " + path + ": " + e.getMessage());
+            log.error(e.getMessage());
             duration = 0;
             clip = null;
             return;

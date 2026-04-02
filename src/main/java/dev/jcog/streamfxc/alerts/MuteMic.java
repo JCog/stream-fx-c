@@ -8,15 +8,20 @@ public class MuteMic extends Alert {
     private static final String MIC_NAME = "Mic";
     private static final String SCENE_NAME = "Common - DSLR";
     private static final String SOURCE_NAME = "Mute Icon";
-    private static final String DING_FILENAME = "res/ding.wav";
+    private static final String START_FILENAME = "res/i_cant_hear_you.wav";
+    private static final String FINISH_FILENAME = "res/ding.wav";
     private static final int INTERVAL_LENGTH = 60 * 1000;
 
+    private static boolean active = false;
+
     private final OBS obs;
-    private final AudioFile ding;
+    private final AudioFile startAudio;
+    private final AudioFile finishAudio;
 
     public MuteMic(OBS obs) {
         this.obs = obs;
-        ding = new AudioFile(DING_FILENAME);
+        startAudio = new AudioFile(START_FILENAME);
+        finishAudio = new AudioFile(FINISH_FILENAME);
     }
 
     @Override
@@ -26,15 +31,20 @@ public class MuteMic extends Alert {
     
     @Override
     protected void onTrigger() {
-        obs.setAudioSourceMuted(MIC_NAME, true);
-        obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, true);
+        if (!active) {
+            startAudio.playClip();
+            obs.setAudioSourceMuted(MIC_NAME, true);
+            obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, true);
+            active = true;
+        }
         wait(INTERVAL_LENGTH);
     }
 
     @Override
     protected void onFinished() {
-        ding.playClip();
+        finishAudio.playClip();
         obs.setAudioSourceMuted(MIC_NAME, false);
         obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, false);
+        active = false;
     }
 }
