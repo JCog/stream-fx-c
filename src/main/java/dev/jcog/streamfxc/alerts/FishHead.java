@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 public class FishHead extends Alert {
+    private static final String ID = "Fish Head";
     private static final String SCENE_NAME = "Alerts";
     private static final String SOURCE_NAME = "Fish Head";
     private static final String CLIP_NAME_FORMAT = "res/fish/fish%d.wav";
@@ -26,6 +27,11 @@ public class FishHead extends Alert {
             clip.setVolume(0.5d);
             clips.add(clip);
         }
+    }
+
+    @Override
+    protected String getId() {
+        return ID;
     }
 
     @Override

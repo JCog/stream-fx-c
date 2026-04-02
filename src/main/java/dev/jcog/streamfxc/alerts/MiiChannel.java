@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MiiChannel extends Alert {
+    private static final String ID = "Mii Channel";
     private static final String CLIP_NAME_FORMAT = "res/mii/mii%d.wav";
     private static final int CLIP_COUNT = 10;
 
@@ -20,6 +21,11 @@ public class MiiChannel extends Alert {
             clips.add(new AudioFile(String.format(CLIP_NAME_FORMAT, i)));
         }
         nextClip = 0;
+    }
+
+    @Override
+    protected String getId() {
+        return ID;
     }
 
     @Override

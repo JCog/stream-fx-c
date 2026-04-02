@@ -4,6 +4,7 @@ import dev.jcog.streamfxc.interfaces.OBS;
 import dev.jcog.streamfxc.util.AudioFile;
 
 public class Helium extends Alert {
+    private static final String ID = "Helium";
     private static final String SOURCE_NAME = "Mic";
     private static final String FILTER_NAME = "Helium";
     private static final String DING_FILENAME = "res/ding.wav";
@@ -15,6 +16,11 @@ public class Helium extends Alert {
     public Helium(OBS obs) {
         this.obs = obs;
         ding = new AudioFile(DING_FILENAME);
+    }
+
+    @Override
+    protected String getId() {
+        return ID;
     }
     
     @Override

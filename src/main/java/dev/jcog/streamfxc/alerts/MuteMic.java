@@ -4,6 +4,7 @@ import dev.jcog.streamfxc.interfaces.OBS;
 import dev.jcog.streamfxc.util.AudioFile;
 
 public class MuteMic extends Alert {
+    private static final String ID = "Mute Mic";
     private static final String MIC_NAME = "Mic";
     private static final String SCENE_NAME = "Common - DSLR";
     private static final String SOURCE_NAME = "Mute Icon";
@@ -16,6 +17,11 @@ public class MuteMic extends Alert {
     public MuteMic(OBS obs) {
         this.obs = obs;
         ding = new AudioFile(DING_FILENAME);
+    }
+
+    @Override
+    protected String getId() {
+        return ID;
     }
     
     @Override

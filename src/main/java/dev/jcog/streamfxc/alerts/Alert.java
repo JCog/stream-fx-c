@@ -4,8 +4,9 @@ import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
 import dev.jcog.streamfxc.interfaces.Controller;
 import dev.jcog.streamfxc.util.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Alert implements TwitchEventListener {
+    private static final Logger log = LoggerFactory.getLogger(Alert.class);
     private static final Map<String, Queue<Alert>> QUEUE_MAP = new HashMap<>();
 
     /* all identical alerts are queued amongst themselves unless overridden by setQueue(). onTriggered() is called once
@@ -30,9 +32,11 @@ public abstract class Alert implements TwitchEventListener {
         Controller.getScheduler().schedule(() -> {
             while (!queue.isEmpty()) {
                 Alert currentAlert = queue.peek();
+                log.debug("\"{}\" triggered", currentAlert.getId());
                 currentAlert.onTrigger();
                 queue.poll();
                 if (queue.isEmpty() || queue.peek().getClass() != currentAlert.getClass()) {
+                    log.debug("\"{}\" finished", currentAlert.getId());
                     currentAlert.onFinished();
                 }
             }
@@ -71,6 +75,7 @@ public abstract class Alert implements TwitchEventListener {
     @Override
     public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent channelPointsEvent) {
         if (channelPointsEvent.getReward().getTitle().equals(rewardName)) {
+            log.info("\"{}\" queued by {} via \"{}\" reward", getId(), channelPointsEvent.getUserName(), rewardName);
             queueAlert(this);
         }
     }
@@ -78,9 +83,17 @@ public abstract class Alert implements TwitchEventListener {
     @Override
     public void onCheer(ChannelCheerEvent cheerEvent) {
         if (cheerEvent.getBits().equals(bitAmount)) {
+            log.info("\"{}\" queued by {} via {} bits", getId(), cheerEvent.getUserName(), bitAmount);
             queueAlert(this);
         }
     }
+
+    public void queueManually() {
+        log.info("\"{}\" queued manually", getId());
+        queueAlert(this);
+    }
+
+    protected abstract String getId();
 
     protected abstract void onTrigger();
 
@@ -89,10 +102,8 @@ public abstract class Alert implements TwitchEventListener {
     protected void wait(int millis) {
         try {
             Thread.sleep(millis);
-        } catch (InterruptedException ignored) {}
-    }
-
-    protected static void print(String log) {
-        System.out.println(Instant.now() + " " + log);
+        } catch (InterruptedException e) {
+            log.error("{}: {}", getId(), e.getMessage());
+        }
     }
 }
