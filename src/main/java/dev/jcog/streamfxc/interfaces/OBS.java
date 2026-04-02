@@ -1,5 +1,6 @@
 package dev.jcog.streamfxc.interfaces;
 
+import dev.jcog.streamfxc.misc.Controller;
 import io.obswebsocket.community.client.OBSRemoteController;
 import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
 import io.obswebsocket.community.client.message.response.filters.GetSourceFilterResponse;

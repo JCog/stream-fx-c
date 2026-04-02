@@ -20,7 +20,7 @@ public class MuteMic extends Alert {
     }
 
     @Override
-    protected String getId() {
+    public String getId() {
         return ID;
     }
     

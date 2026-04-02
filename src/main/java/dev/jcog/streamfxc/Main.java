@@ -1,6 +1,6 @@
 package dev.jcog.streamfxc;
 
-import dev.jcog.streamfxc.interfaces.Controller;
+import dev.jcog.streamfxc.misc.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         Controller controller = new Controller();
-        controller.createAlerts();
+        controller.listen();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Stream FX C stopping... ");

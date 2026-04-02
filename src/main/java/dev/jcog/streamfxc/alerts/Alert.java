@@ -2,7 +2,7 @@ package dev.jcog.streamfxc.alerts;
 
 import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
-import dev.jcog.streamfxc.interfaces.Controller;
+import dev.jcog.streamfxc.misc.Controller;
 import dev.jcog.streamfxc.util.TwitchEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +93,7 @@ public abstract class Alert implements TwitchEventListener {
         queueAlert(this);
     }
 
-    protected abstract String getId();
+    public abstract String getId();
 
     protected abstract void onTrigger();
 
