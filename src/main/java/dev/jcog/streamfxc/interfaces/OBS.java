@@ -270,7 +270,6 @@ public class OBS {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void onSceneChanged(CurrentProgramSceneChangedEvent event) {
-        System.out.println(event.getSceneName());
         scenePrev = sceneCurrent;
         sceneCurrent = event.getSceneName();
     }

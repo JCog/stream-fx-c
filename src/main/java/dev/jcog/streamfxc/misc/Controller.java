@@ -79,7 +79,7 @@ public class Controller {
 
             if (line.equals("alerts")) {
                 for (int i = 0; i < alertList.size(); i++) {
-                    System.out.printf("%d. %s%n", i, alertList.get(i).getId());
+                    console.printf("%d. %s%n", i, alertList.get(i).getId());
                 }
             } else {
                 Integer alertIdx;

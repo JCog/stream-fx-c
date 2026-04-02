@@ -13,12 +13,14 @@ import com.github.twitch4j.helix.domain.UserList;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import org.jetbrains.annotations.Nullable;
 import dev.jcog.streamfxc.util.TwitchEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
-import static java.lang.System.out;
-
 public class TwitchApi {
+    private static final Logger log = LoggerFactory.getLogger(TwitchApi.class);
+
     private final String authToken;
     private final TwitchClient twitchClient;
     private final User user;
@@ -38,8 +40,8 @@ public class TwitchApi {
         User tempUser = null;
         try {
             tempUser = getUserByUsername(channel);
-        } catch (HystrixRuntimeException ignored) {
-            out.println("Error retrieving Twitch channel information");
+        } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
         }
         if (tempUser == null) {
             System.exit(1);
