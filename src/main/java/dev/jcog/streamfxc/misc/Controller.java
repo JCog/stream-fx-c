@@ -63,18 +63,18 @@ public class Controller {
         log.info(sb.toString());
     }
 
-    public void listen() {
+    public boolean listen() {
         Console console = System.console();
         if (console == null) {
             log.warn("Console not available");
-            return;
+            return false;
         }
 
         while (true) {
             String line = console.readLine();
             if (line.equals("quit")) {
                 closeAll();
-                return;
+                return true;
             }
 
             if (line.equals("alerts")) {

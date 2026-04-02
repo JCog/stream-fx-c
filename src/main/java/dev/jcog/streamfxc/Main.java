@@ -9,12 +9,16 @@ public class Main {
 
     public static void main(String[] args) {
         Controller controller = new Controller();
-        controller.listen();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            log.info("Stream FX C stopping... ");
+            log.info("Stream FX C stopping...");
             controller.closeAll();
             log.info("Stream FX C stopped.");
         }));
+
+        boolean quit = controller.listen();
+        if (quit) {
+            System.exit(0);
+        }
     }
 }
