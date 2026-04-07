@@ -37,6 +37,7 @@ public class Controller {
                 new AudioAlert("Nice", "res/attack_fx_c.wav").setRewardTrigger("Nice"),
                 new AudioAlert("Toad Scream", "res/toad_scream.wav", 0.5d).setRewardTrigger("Toad Scream"),
 
+                new RolloMeow().setRewardTrigger("Rollo Meow"),
                 new FishHead(obs).setRewardTrigger("Fish Announcer"),
                 new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
 
