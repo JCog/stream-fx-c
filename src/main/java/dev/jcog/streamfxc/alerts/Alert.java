@@ -17,6 +17,12 @@ public abstract class Alert implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(Alert.class);
     private static final Map<String, Queue<Alert>> QUEUE_MAP = new HashMap<>();
 
+    protected String id;
+
+    public Alert(String id) {
+        this.id = id;
+    }
+
     /* all identical alerts are queued amongst themselves unless overridden by setQueue(). onTriggered() is called once
     * for each time an alert is triggered, but onFinished() is only called once either the queue is empty or the next
     * alert in the queue is of a different type. */
@@ -64,6 +70,10 @@ public abstract class Alert implements TwitchEventListener {
         return this;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public String getRewardName() {
         return rewardName;
     }
@@ -93,11 +103,9 @@ public abstract class Alert implements TwitchEventListener {
         queueAlert(this);
     }
 
-    public abstract String getId();
-
     protected abstract void onTrigger();
 
-    protected abstract void onFinished();
+    protected void onFinished() {}
 
     protected void wait(int millis) {
         try {

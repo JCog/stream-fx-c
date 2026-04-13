@@ -19,6 +19,7 @@ public class MuteMic extends Alert {
     private final AudioFile finishAudio;
 
     public MuteMic(OBS obs) {
+        super(ID);
         this.obs = obs;
         startAudio = new AudioFile(START_FILENAME);
         finishAudio = new AudioFile(FINISH_FILENAME);

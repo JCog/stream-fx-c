@@ -3,11 +3,10 @@ package dev.jcog.streamfxc.alerts;
 import dev.jcog.streamfxc.util.AudioFile;
 
 public class AudioAlert extends Alert {
-    private final String id;
     private final AudioFile clip;
 
     public AudioAlert(String id, String filePath) {
-        this.id = id;
+        super(id);
         clip = new AudioFile(filePath);
     }
 
@@ -17,17 +16,7 @@ public class AudioAlert extends Alert {
     }
 
     @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
     protected void onTrigger() {
         clip.playClip();
-    }
-
-    @Override
-    protected void onFinished() {
-
     }
 }

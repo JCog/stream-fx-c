@@ -15,6 +15,7 @@ public class RolloMeow extends Alert {
     private final Random random;
 
     public RolloMeow() {
+        super(ID);
         random = new Random();
         clips = new ArrayList<>();
         for (int i = 0; i < CLIP_COUNT; i++) {
@@ -24,17 +25,7 @@ public class RolloMeow extends Alert {
     }
 
     @Override
-    public String getId() {
-        return ID;
-    }
-
-    @Override
     protected void onTrigger() {
         clips.get(random.nextInt(CLIP_COUNT)).playClip();
-    }
-
-    @Override
-    protected void onFinished() {
-
     }
 }

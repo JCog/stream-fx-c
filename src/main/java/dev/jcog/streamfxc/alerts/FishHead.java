@@ -19,6 +19,7 @@ public class FishHead extends Alert {
     private final Random random;
 
     public FishHead(OBS obs) {
+        super(ID);
         this.obs = obs;
         random = new Random();
         clips = new ArrayList<>();
@@ -27,11 +28,6 @@ public class FishHead extends Alert {
             clip.setVolume(0.5d);
             clips.add(clip);
         }
-    }
-
-    @Override
-    public String getId() {
-        return ID;
     }
 
     @Override
@@ -45,10 +41,5 @@ public class FishHead extends Alert {
 
         obs.setSourceEnabled(SCENE_NAME, sourceId, false);
         wait(500);
-    }
-
-    @Override
-    protected void onFinished() {
-
     }
 }

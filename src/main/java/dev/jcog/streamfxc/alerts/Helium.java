@@ -14,13 +14,9 @@ public class Helium extends Alert {
     private final AudioFile ding;
 
     public Helium(OBS obs) {
+        super(ID);
         this.obs = obs;
         ding = new AudioFile(DING_FILENAME);
-    }
-
-    @Override
-    public String getId() {
-        return ID;
     }
     
     @Override

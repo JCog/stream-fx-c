@@ -3,7 +3,7 @@ package dev.jcog.streamfxc.util;
 public abstract class AlertTask implements Runnable {
     private boolean canceled;
 
-    protected AlertTask() {
+    public AlertTask() {
         canceled = false;
     }
 
