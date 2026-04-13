@@ -10,17 +10,16 @@ public class FishHead extends Alert {
     private static final String ID = "Fish Head";
     private static final String SCENE_NAME = "Alerts";
     private static final String SOURCE_NAME = "Fish Head";
-    private static final String CLIP_FOLDER = "res/fish";
 
     private final OBS obs;
     private final List<AudioFile> clips;
     private final Random random;
 
-    public FishHead(OBS obs) {
+    public FishHead(OBS obs, String clipDir) {
         super(ID);
         this.obs = obs;
         random = new Random();
-        clips = AudioFile.getAudioFilesInDir(CLIP_FOLDER);
+        clips = AudioFile.getAudioFilesInDir(clipDir);
         for (AudioFile clip : clips) {
             clip.setVolume(0.5d);
         }

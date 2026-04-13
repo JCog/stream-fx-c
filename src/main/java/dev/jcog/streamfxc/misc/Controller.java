@@ -37,12 +37,12 @@ public class Controller {
                 new AudioAlert("Nice", "res/attack_fx_c.wav").setRewardTrigger("Nice"),
                 new AudioAlert("Toad Scream", "res/toad_scream.wav", 0.5d).setRewardTrigger("Toad Scream"),
 
-                new RolloMeow().setRewardTrigger("Rollo Meow"),
-                new FishHead(obs).setRewardTrigger("Fish Announcer"),
-                new MiiChannel().setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
+                new RolloMeow("res/rollo").setRewardTrigger("Rollo Meow"),
+                new FishHead(obs, "res/fish").setRewardTrigger("Fish Announcer"),
+                new MiiChannel("res/mii").setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
 
-                new Helium(obs).setBitTrigger(150).setQueue("Mic"),
-                new MuteMic(obs).setBitTrigger(140).setQueue("Mic")
+                new Helium(obs, "res/ding.wav").setBitTrigger(150).setQueue("Mic"),
+                new MuteMic(obs, "res/i_cant_hear_you.wav", "res/ding.wav").setBitTrigger(140).setQueue("Mic")
         );
 
         // register alerts

@@ -8,8 +8,6 @@ public class MuteMic extends Alert {
     private static final String MIC_NAME = "Mic";
     private static final String SCENE_NAME = "Common - DSLR";
     private static final String SOURCE_NAME = "Mute Icon";
-    private static final String START_FILENAME = "res/i_cant_hear_you.wav";
-    private static final String FINISH_FILENAME = "res/ding.wav";
     private static final int INTERVAL_LENGTH = 60 * 1000;
 
     private static boolean active = false;
@@ -18,11 +16,11 @@ public class MuteMic extends Alert {
     private final AudioFile startAudio;
     private final AudioFile finishAudio;
 
-    public MuteMic(OBS obs) {
+    public MuteMic(OBS obs, String startFilename, String finishFilename) {
         super(ID);
         this.obs = obs;
-        startAudio = new AudioFile(START_FILENAME);
-        finishAudio = new AudioFile(FINISH_FILENAME);
+        startAudio = new AudioFile(startFilename);
+        finishAudio = new AudioFile(finishFilename);
     }
 
     @Override

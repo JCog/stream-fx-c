@@ -7,15 +7,14 @@ import java.util.Random;
 
 public class RolloMeow extends Alert {
     private static final String ID = "Rollo Meow";
-    private static final String CLIP_DIR = "res/rollo";
 
     private final List<AudioFile> clips;
     private final Random random;
 
-    public RolloMeow() {
+    public RolloMeow(String clipDir) {
         super(ID);
         random = new Random();
-        clips = AudioFile.getAudioFilesInDir(CLIP_DIR);
+        clips = AudioFile.getAudioFilesInDir(clipDir);
     }
 
     @Override

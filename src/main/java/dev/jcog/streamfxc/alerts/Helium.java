@@ -7,16 +7,15 @@ public class Helium extends Alert {
     private static final String ID = "Helium";
     private static final String SOURCE_NAME = "Mic";
     private static final String FILTER_NAME = "Helium";
-    private static final String DING_FILENAME = "res/ding.wav";
     private static final int INTERVAL_LENGTH = 60 * 1000;
 
     private final OBS obs;
-    private final AudioFile ding;
+    private final AudioFile finishClip;
 
-    public Helium(OBS obs) {
+    public Helium(OBS obs, String finishFilename) {
         super(ID);
         this.obs = obs;
-        ding = new AudioFile(DING_FILENAME);
+        finishClip = new AudioFile(finishFilename);
     }
     
     @Override
@@ -27,7 +26,7 @@ public class Helium extends Alert {
 
     @Override
     protected void onFinished() {
-        ding.playClip();
+        finishClip.playClip();
         obs.setSourceFilterEnabled(SOURCE_NAME, FILTER_NAME, false);
     }
 }

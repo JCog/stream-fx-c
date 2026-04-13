@@ -7,15 +7,14 @@ import java.util.List;
 
 public class MiiChannel extends Alert {
     private static final String ID = "Mii Channel";
-    private static final String CLIP_DIR = "res/mii";
 
     private final List<AudioFile> clips;
 
     private int nextClip;
 
-    public MiiChannel() {
+    public MiiChannel(String clipDir) {
         super(ID);
-        clips = AudioFile.getAudioFilesInDir(CLIP_DIR);
+        clips = AudioFile.getAudioFilesInDir(clipDir);
         nextClip = 0;
     }
 
