@@ -3,13 +3,11 @@ package dev.jcog.streamfxc.alerts;
 import dev.jcog.streamfxc.util.AlertFuture;
 import dev.jcog.streamfxc.util.AudioFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MiiChannel extends Alert {
     private static final String ID = "Mii Channel";
-    private static final String CLIP_NAME_FORMAT = "res/mii/mii%d.wav";
-    private static final int CLIP_COUNT = 10;
+    private static final String CLIP_DIR = "res/mii";
 
     private final List<AudioFile> clips;
 
@@ -17,10 +15,7 @@ public class MiiChannel extends Alert {
 
     public MiiChannel() {
         super(ID);
-        clips = new ArrayList<>();
-        for (int i = 0; i < CLIP_COUNT; i++) {
-            clips.add(new AudioFile(String.format(CLIP_NAME_FORMAT, i)));
-        }
+        clips = AudioFile.getAudioFilesInDir(CLIP_DIR);
         nextClip = 0;
     }
 
@@ -28,7 +23,7 @@ public class MiiChannel extends Alert {
     protected void onTrigger() {
         AlertFuture future = clips.get(nextClip).playClip();
         nextClip++;
-        nextClip %= CLIP_COUNT;
+        nextClip %= clips.size();
         future.block();
     }
 }
