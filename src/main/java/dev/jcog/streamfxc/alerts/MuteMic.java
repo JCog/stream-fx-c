@@ -36,7 +36,7 @@ public class MuteMic extends Alert {
             obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, true);
             active = true;
         }
-        wait(INTERVAL_LENGTH);
+        waitFromNow(INTERVAL_LENGTH);
     }
 
     @Override

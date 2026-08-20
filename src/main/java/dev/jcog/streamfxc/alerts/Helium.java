@@ -21,7 +21,7 @@ public class Helium extends Alert {
     @Override
     protected void onTrigger() {
         obs.setSourceFilterEnabled(SOURCE_NAME, FILTER_NAME, true);
-        wait(INTERVAL_LENGTH);
+        waitFromNow(INTERVAL_LENGTH);
     }
 
     @Override

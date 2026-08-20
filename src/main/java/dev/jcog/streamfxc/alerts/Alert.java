@@ -7,6 +7,8 @@ import dev.jcog.streamfxc.util.TwitchEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +41,7 @@ public abstract class Alert implements TwitchEventListener {
             while (!queue.isEmpty()) {
                 Alert currentAlert = queue.peek();
                 log.debug("\"{}\" triggered", currentAlert.getId());
+                currentAlert.setTriggerTime();
                 currentAlert.onTrigger();
                 queue.poll();
                 if (queue.isEmpty() || queue.peek().getClass() != currentAlert.getClass()) {
@@ -54,6 +57,7 @@ public abstract class Alert implements TwitchEventListener {
     private String rewardName = null;
     private Integer bitAmount = null;
     private String queueName = null;
+    private Instant triggerTime = null;
 
     public Alert setRewardTrigger(String rewardName) {
         this.rewardName = rewardName;
@@ -68,6 +72,10 @@ public abstract class Alert implements TwitchEventListener {
     public Alert setQueue(String queueName) {
         this.queueName = queueName;
         return this;
+    }
+
+    private void setTriggerTime() {
+        triggerTime = Instant.now();
     }
 
     public String getId() {
@@ -107,11 +115,21 @@ public abstract class Alert implements TwitchEventListener {
 
     protected void onFinished() {}
 
-    protected void wait(int millis) {
+    protected void waitFromNow(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             log.error("{}: {}", getId(), e.getMessage());
         }
+    }
+
+    protected void waitUntil(long millisFromTrigger) {
+        Instant target = triggerTime.plusMillis(millisFromTrigger);
+        long waitTime = Duration.between(Instant.now(), target).toMillis();
+        waitFromNow(waitTime);
+    }
+
+    protected long elapsedMillis() {
+        return Duration.between(triggerTime, Instant.now()).toMillis();
     }
 }

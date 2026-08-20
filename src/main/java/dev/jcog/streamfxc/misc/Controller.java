@@ -15,6 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class Controller {
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
+    private static final String QUEUE_MIC = "Mic";
 
     private final OBS obs;
     private final TwitchApi twitchApi;
@@ -41,8 +42,9 @@ public class Controller {
                 new FishHead(obs, "res/fish").setRewardTrigger("Fish Announcer"),
                 new MiiChannel("res/mii").setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
 
-                new Helium(obs, "res/ding.wav").setBitTrigger(150).setQueue("Mic"),
-                new MuteMic(obs, "res/i_cant_hear_you.wav", "res/ding.wav").setBitTrigger(140).setQueue("Mic")
+                new Helium(obs, "res/ding.wav").setBitTrigger(150).setQueue(QUEUE_MIC),
+                new MuteMic(obs, "res/i_cant_hear_you.wav", "res/ding.wav").setBitTrigger(140).setQueue(QUEUE_MIC),
+                new PowerShock(obs, "res/ding.wav").setQueue(QUEUE_MIC)
         );
 
         // register alerts

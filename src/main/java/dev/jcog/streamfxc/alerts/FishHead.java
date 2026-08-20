@@ -35,6 +35,6 @@ public class FishHead extends Alert {
         obs.moveSource(SCENE_NAME, sourceId, 400, 0, 60, false).block();
 
         obs.setSourceEnabled(SCENE_NAME, sourceId, false);
-        wait(500);
+        waitFromNow(500);
     }
 }
