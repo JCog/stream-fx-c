@@ -44,7 +44,7 @@ public class Controller {
 
                 new Helium(obs, "res/ding.wav").setBitTrigger(150).setQueue(QUEUE_MIC),
                 new MuteMic(obs, "res/i_cant_hear_you.wav", "res/ding.wav").setBitTrigger(140).setQueue(QUEUE_MIC),
-                new PowerShock(obs, "res/ding.wav").setQueue(QUEUE_MIC)
+                new PowerShock(obs, "res/ding.wav").setBitTrigger(200).setQueue(QUEUE_MIC)
         );
 
         // register alerts
