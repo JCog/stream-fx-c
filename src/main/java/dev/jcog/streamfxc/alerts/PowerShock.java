@@ -14,16 +14,21 @@ public class PowerShock extends Alert {
     private static final String ID = "Power Shock";
     private static final String SCENE_ALERTS = "Alerts";
     private static final String SCENE_DSLR_COMMON = "Common - DSLR";
+
     private static final String SOURCE_WATT_SUCCESS = "Watt Success";
     private static final String SOURCE_WATT_FAILURE = "Watt Failure";
     private static final String SOURCE_DSLR_BASE = "DSLR";
     private static final String SOURCE_DSLR_SHAKE = "DSLR (chroma key)";
+    private static final String SOURCE_ICON_SHOCKED = "Shocked Icon";
+
     private static final String FILTER_SHOCK = "Power Shock";
     private static final String FILTER_FREEZE = "Freeze";
+    private static final String FILTER_ICON_CC = "Color Correction";
+
     private static final float WATT_HOME_X = -210f;
     private static final float WATT_HOME_Y = 780f;
     private static final long SHOCK_START = 4200;
-    private static final long SUCCESS_LENGTH = 45000 + SHOCK_START;
+    private static final long SUCCESS_LENGTH = 10000 + SHOCK_START;
 
     private final OBS obs;
     private final AudioFile finishClip;
@@ -53,6 +58,9 @@ public class PowerShock extends Alert {
 
         waitUntil(SHOCK_START);
         if (success) {
+            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, true);
+            obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 1f, 30);
+
             obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_FREEZE, true);
             Controller.getScheduler().schedule(this::flashCameraLoop, 0, TimeUnit.MILLISECONDS);
             Controller.getScheduler().schedule(this::shakeCameraLoop, 0, TimeUnit.MILLISECONDS);
@@ -61,13 +69,16 @@ public class PowerShock extends Alert {
         waitUntil(7000);
         obs.moveSource(SCENE_ALERTS, sourceWatt, WATT_HOME_X, WATT_HOME_Y, 60, false);
 
-        waitUntil(7500);
+        waitUntil(9500);
         obs.setSourceEnabled(SCENE_ALERTS, sourceWatt, false);
+        waitFromNow(2000);
 
         if (success) {
             waitUntil(SUCCESS_LENGTH);
             obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_FREEZE, false);
             finishClip.playClip();
+            obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 0f, 30).block();
+            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, false);
         }
     }
 
