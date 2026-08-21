@@ -20,6 +20,8 @@ public class PowerShock extends Alert {
     private static final String SOURCE_DSLR_BASE = "DSLR";
     private static final String SOURCE_DSLR_SHAKE = "DSLR (chroma key)";
     private static final String SOURCE_ICON_SHOCKED = "Shocked Icon";
+    private static final String SOURCE_ICON_DINK = "Dink Icon";
+    private static final String SOURCE_ICON_NICE = "Nice Icon";
 
     private static final String FILTER_SHOCK = "Power Shock";
     private static final String FILTER_FREEZE = "Freeze";
@@ -27,8 +29,12 @@ public class PowerShock extends Alert {
 
     private static final float WATT_HOME_X = -210f;
     private static final float WATT_HOME_Y = 780f;
+    private static final float DINK_HOME_X = 150f;
+    private static final float DINK_HOME_Y = 915f;
+    private static final float NICE_HOME_X = 50f;
+    private static final float NICE_HOME_Y = 800f;
     private static final long SHOCK_START = 4200;
-    private static final long SUCCESS_LENGTH = 10000 + SHOCK_START;
+    private static final long SUCCESS_LENGTH = 45000 + SHOCK_START;
 
     private final OBS obs;
     private final AudioFile finishClip;
@@ -58,12 +64,30 @@ public class PowerShock extends Alert {
 
         waitUntil(SHOCK_START);
         if (success) {
+            // shocked icon
             obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, true);
             obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 1f, 30);
 
+            // NICE text
+            Number sourceNice = obs.getSourceId(SCENE_ALERTS, SOURCE_ICON_NICE);
+            obs.moveSource(SCENE_ALERTS, sourceNice, NICE_HOME_X, NICE_HOME_Y, 0, false);
+            obs.setSourceEnabled(SCENE_ALERTS, sourceNice, true);
+            obs.moveSource(SCENE_ALERTS, sourceNice, -30, -100, 20, true);
+
+            // camera shake/flash
             obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_FREEZE, true);
             Controller.getScheduler().schedule(this::flashCameraLoop, 0, TimeUnit.MILLISECONDS);
             Controller.getScheduler().schedule(this::shakeCameraLoop, 0, TimeUnit.MILLISECONDS);
+        } else {
+            Number sourceDink = obs.getSourceId(SCENE_ALERTS, SOURCE_ICON_DINK);
+            obs.moveSource(SCENE_ALERTS, sourceDink, DINK_HOME_X, DINK_HOME_Y, 0, false);
+            obs.setOpacity(SOURCE_ICON_DINK, FILTER_ICON_CC, 1f, 0);
+            obs.setSourceEnabled(SCENE_ALERTS, sourceDink, true);
+
+            obs.moveSource(SCENE_ALERTS, sourceDink, 300, -100, 25, true).block();
+            obs.setOpacity(SOURCE_ICON_DINK, FILTER_ICON_CC, 0, 30).block();
+            obs.setSourceEnabled(SCENE_ALERTS, sourceDink, false);
+
         }
 
         waitUntil(7000);
@@ -79,6 +103,7 @@ public class PowerShock extends Alert {
             finishClip.playClip();
             obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 0f, 30).block();
             obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, false);
+            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_NICE, false);
         }
     }
 

@@ -276,6 +276,42 @@ public class OBS {
         return future;
     }
 
+    // degrees, can be kind of buggy with bigger ranges
+    public AlertFuture rotateSource(String sceneName, Number sourceId, float rotation, int frames, boolean relative) {
+        SceneItem.Transform sourceTransform = getSourceTransform(sceneName, sourceId);
+        Float start = sourceTransform.getRotation();
+        float end = relative ? start + rotation : rotation;
+
+        // rotate instantly, run callback, return
+        if (frames == 0) {
+            sourceTransform.setRotation(end);
+            setSourceTransform(sceneName, sourceId, sourceTransform);
+            return AlertFuture.getCompletedFuture();
+        }
+
+        // rotate over time
+        float inter = (end - start) / frames;
+        Queue<Float> queue = new ArrayDeque<>();
+        for (int i = 1; i < frames; i++) {
+            queue.add(start + inter * i);
+        }
+        queue.add(end);
+
+        AlertFuture future = new AlertFuture();
+        Controller.getScheduler().scheduleAtFixedRate(new AlertTask() {
+            @Override
+            public void runTask() {
+                sourceTransform.setRotation(queue.poll());
+                setSourceTransform(sceneName, sourceId, sourceTransform);
+                if (queue.isEmpty()) {
+                    this.cancel();
+                    future.complete();
+                }
+            }
+        }, 0, 1000 / FRAMERATE, TimeUnit.MILLISECONDS);
+        return future;
+    }
+
     public Float getSourceFilterOpacity(String sourceName, String filterName) {
         GetSourceFilterResponse sourceFilter = getSourceFilter(sourceName, filterName);
         if (sourceFilter == null) {
