@@ -1,5 +1,6 @@
 package dev.jcog.streamfxc.interfaces;
 
+import com.google.gson.JsonObject;
 import dev.jcog.streamfxc.misc.Controller;
 import io.obswebsocket.community.client.OBSRemoteController;
 import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
@@ -173,7 +174,7 @@ public class OBS {
         setAudioSourceMuted(sourceName, !muted);
     }
 
-    public Boolean getSourceFilterEnabled(String sourceName, String filterName) {
+    private GetSourceFilterResponse getSourceFilter(String sourceName, String filterName) {
         CompletableFuture<GetSourceFilterResponse> future = CompletableFuture.supplyAsync(
                 () -> obsRemote.getSourceFilter(sourceName, filterName, TIMEOUT)
         );
@@ -188,7 +189,15 @@ public class OBS {
         if (!response.isSuccessful()) {
             return null;
         }
-        return response.getFilterEnabled();
+        return response;
+    }
+
+    public Boolean getSourceFilterEnabled(String sourceName, String filterName) {
+        GetSourceFilterResponse sourceFilter = getSourceFilter(sourceName, filterName);
+        if (sourceFilter == null) {
+            return null;
+        }
+        return sourceFilter.getFilterEnabled();
     }
 
     public void setSourceFilterEnabled(String sourceName, String filterName, boolean enabled) {
@@ -259,6 +268,49 @@ public class OBS {
                 sourceTransform.setPositionY(queueY.poll());
                 setSourceTransform(sceneName, sourceId, sourceTransform);
                 if (queueX.isEmpty()) {
+                    this.cancel();
+                    future.complete();
+                }
+            }
+        }, 0, 1000 / FRAMERATE, TimeUnit.MILLISECONDS);
+        return future;
+    }
+
+    public Float getSourceFilterOpacity(String sourceName, String filterName) {
+        GetSourceFilterResponse sourceFilter = getSourceFilter(sourceName, filterName);
+        if (sourceFilter == null) {
+            return null;
+        }
+        return sourceFilter.getFilterSettings().get("opacity").getAsFloat();
+    }
+
+    // 0 to 1.0f
+    public AlertFuture setOpacity(String sourceName, String filterName, float opacity, int frames) {
+        JsonObject settings = new JsonObject();
+
+        // set instantly, run callback, return
+        if (frames == 0) {
+            settings.addProperty("opacity", opacity);
+            obsRemote.setSourceFilterSettings(sourceName, filterName, settings, true, TIMEOUT);
+            return AlertFuture.getCompletedFuture();
+        }
+
+        // change over time
+        Float start = getSourceFilterOpacity(sourceName, filterName);
+        float inter = (opacity - start) / frames;
+        Queue<Float> queue = new ArrayDeque<>();
+        for (int i = 1; i < frames; i++) {
+            queue.add(start + inter * i);
+        }
+        queue.add(opacity);
+
+        AlertFuture future = new AlertFuture();
+        Controller.getScheduler().scheduleAtFixedRate(new AlertTask() {
+            @Override
+            public void runTask() {
+                settings.addProperty("opacity", queue.poll());
+                obsRemote.setSourceFilterSettings(sourceName, filterName, settings, true, TIMEOUT);
+                if (queue.isEmpty()) {
                     this.cancel();
                     future.complete();
                 }
