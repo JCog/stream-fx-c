@@ -53,13 +53,13 @@ public class PowerShock extends Alert {
     @Override
     protected void onTrigger() {
         boolean success = random.nextBoolean();
-        Number sourceWatt;
+        String sourceWatt;
         if (success) {
             log.info("success");
-            sourceWatt = obs.getSourceId(SCENE_ALERTS, SOURCE_WATT_SUCCESS);
+            sourceWatt = SOURCE_WATT_SUCCESS;
         } else {
             log.info("failure");
-            sourceWatt = obs.getSourceId(SCENE_ALERTS, SOURCE_WATT_FAILURE);
+            sourceWatt = SOURCE_WATT_FAILURE;
         }
         obs.moveSource(SCENE_ALERTS, sourceWatt, WATT_HOME_X, WATT_HOME_Y, 0, false);
         obs.setSourceEnabled(SCENE_ALERTS, sourceWatt, true);
@@ -74,24 +74,23 @@ public class PowerShock extends Alert {
             obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 1f, 30);
 
             // NICE text
-            Number sourceNice = obs.getSourceId(SCENE_ALERTS, SOURCE_ICON_NICE);
-            obs.moveSource(SCENE_ALERTS, sourceNice, NICE_HOME_X, NICE_HOME_Y, 0, false);
-            obs.setSourceEnabled(SCENE_ALERTS, sourceNice, true);
-            obs.moveSource(SCENE_ALERTS, sourceNice, -30, -100, 20, true);
+            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_NICE, NICE_HOME_X, NICE_HOME_Y, 0, false);
+            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_NICE, true);
+            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_NICE, -30, -100, 20, true);
 
             // camera shake/flash
             obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_FREEZE, true);
             Controller.getScheduler().schedule(this::flashCameraLoop, 0, TimeUnit.MILLISECONDS);
             Controller.getScheduler().schedule(this::shakeCameraLoop, 0, TimeUnit.MILLISECONDS);
         } else {
-            Number sourceDink = obs.getSourceId(SCENE_ALERTS, SOURCE_ICON_DINK);
-            obs.moveSource(SCENE_ALERTS, sourceDink, DINK_HOME_X, DINK_HOME_Y, 0, false);
+            // dink icon
+            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_DINK, DINK_HOME_X, DINK_HOME_Y, 0, false);
             obs.setOpacity(SOURCE_ICON_DINK, FILTER_ICON_CC, 1f, 0);
-            obs.setSourceEnabled(SCENE_ALERTS, sourceDink, true);
+            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_DINK, true);
 
-            obs.moveSource(SCENE_ALERTS, sourceDink, 300, -100, 25, true).block();
+            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_DINK, 300, -100, 25, true).block();
             obs.setOpacity(SOURCE_ICON_DINK, FILTER_ICON_CC, 0, 30).block();
-            obs.setSourceEnabled(SCENE_ALERTS, sourceDink, false);
+            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_DINK, false);
 
         }
 
@@ -114,12 +113,11 @@ public class PowerShock extends Alert {
     }
 
     private void oneShake() {
-        Number sourceCamera = obs.getSourceId(SCENE_DSLR_COMMON, SOURCE_DSLR_SHAKE);
-        obs.moveSource(SCENE_DSLR_COMMON, sourceCamera, 0, 3, 0, true);
+        obs.moveSource(SCENE_DSLR_COMMON, SOURCE_DSLR_SHAKE, 0, 3, 0, true);
         waitFromNow(33);
-        obs.moveSource(SCENE_DSLR_COMMON, sourceCamera, 0, -6, 0, true);
+        obs.moveSource(SCENE_DSLR_COMMON, SOURCE_DSLR_SHAKE, 0, -6, 0, true);
         waitFromNow(33);
-        obs.moveSource(SCENE_DSLR_COMMON, sourceCamera, 0, 3, 0, true);
+        obs.moveSource(SCENE_DSLR_COMMON, SOURCE_DSLR_SHAKE, 0, 3, 0, true);
     }
 
     private void shakeCameraLoop() {

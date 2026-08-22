@@ -27,14 +27,13 @@ public class FishHead extends Alert {
 
     @Override
     protected void onTrigger() {
-        Number sourceId = obs.getSourceId(SCENE_NAME, SOURCE_NAME);
-        obs.moveSource(SCENE_NAME, sourceId, 0, 0, 0, false);
-        obs.setSourceEnabled(SCENE_NAME, sourceId, true);
+        obs.moveSource(SCENE_NAME, SOURCE_NAME, 0, 0, 0, false);
+        obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, true);
         clips.get(random.nextInt(clips.size())).playClip().block();
 
-        obs.moveSource(SCENE_NAME, sourceId, 400, 0, 60, false).block();
+        obs.moveSource(SCENE_NAME, SOURCE_NAME, 400, 0, 60, false).block();
 
-        obs.setSourceEnabled(SCENE_NAME, sourceId, false);
+        obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, false);
         waitFromNow(500);
     }
 }

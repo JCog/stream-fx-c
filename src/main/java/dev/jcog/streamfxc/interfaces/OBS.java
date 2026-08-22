@@ -12,11 +12,14 @@ import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItem
 import io.obswebsocket.community.client.model.SceneItem;
 import dev.jcog.streamfxc.util.AlertFuture;
 import dev.jcog.streamfxc.util.AlertTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.*;
 
 public class OBS {
+    private static final Logger log = LoggerFactory.getLogger(OBS.class);
     private static final int TIMEOUT = 1000;
     private static final int FRAMERATE = 60;
 
@@ -80,10 +83,12 @@ public class OBS {
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
+            log.error("exception fetching source \"{}, {}\"", sceneName, sourceName);
             return null;
         }
 
         if (!response.isSuccessful()) {
+            log.error("unable to fetch source \"{}, {}\"", sceneName, sourceName);
             return null;
         }
         // cache sourceId
@@ -100,7 +105,7 @@ public class OBS {
         return getSourceEnabled(sceneName, sourceId);
     }
 
-    public Boolean getSourceEnabled(String sceneName, Number sourceId) {
+    private Boolean getSourceEnabled(String sceneName, Number sourceId) {
         CompletableFuture<GetSceneItemEnabledResponse> future = CompletableFuture.supplyAsync(
                 () -> obsRemote.getSceneItemEnabled(sceneName, sourceId, TIMEOUT)
         );
@@ -109,10 +114,12 @@ public class OBS {
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
+            log.error("exception fetching enabled state of source \"{}, {}\"", sceneName, sourceId);
             return null;
         }
 
         if (!response.isSuccessful()) {
+            log.error("unable to fetch enabled state of source \"{}, {}\"", sceneName, sourceId);
             return null;
         }
         return response.getSceneItemEnabled();
@@ -121,23 +128,22 @@ public class OBS {
     public void setSourceEnabled(String sceneName, String sourceName, boolean enabled) {
         Number sourceId = getSourceId(sceneName, sourceName);
         if (sourceId == null) {
+            log.error("unable to get source ID for \"{}, {}\" to enable/disable", sceneName, sourceName);
             return;
         }
 
-        obsRemote.setSceneItemEnabled(sceneName, sourceId, enabled, TIMEOUT);
-    }
-
-    public void setSourceEnabled(String sceneName, Number sourceId, boolean enabled) {
         obsRemote.setSceneItemEnabled(sceneName, sourceId, enabled, TIMEOUT);
     }
 
     public void toggleSourceEnabled(String sceneName, String sourceName) {
         Number sourceId = getSourceId(sceneName, sourceName);
         if (sourceId == null) {
+            log.error("unable to get source ID for \"{}, {}\" to toggle enabled state", sceneName, sourceName);
             return;
         }
         Boolean enabled = getSourceEnabled(sceneName, sourceId);
         if (enabled == null) {
+            log.error("unable to toggle unknown enabled state of \"{}, {}\"", sceneName, sourceName);
             return;
         }
 
@@ -153,10 +159,12 @@ public class OBS {
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
+            log.error("exception fetching audio source \"{}\"", sourceName);
             return null;
         }
 
         if (!response.isSuccessful()) {
+            log.error("unable to fetch audio source \"{}\"", sourceName);
             return null;
         }
         return response.getInputMuted();
@@ -169,6 +177,7 @@ public class OBS {
     public void toggleAudioSourceMuted(String sourceName) {
         Boolean muted = getAudioSourceMuted(sourceName);
         if (muted == null) {
+            log.error("unable to toggle unknown muted state of audio source \"{}\"", sourceName);
             return;
         }
         setAudioSourceMuted(sourceName, !muted);
@@ -183,10 +192,12 @@ public class OBS {
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
+            log.error("exception fetching source filter \"{}, {}\"", sourceName, filterName);
             return null;
         }
 
         if (!response.isSuccessful()) {
+            log.error("unable to fetch source filter \"{}, {}\"", sourceName, filterName);
             return null;
         }
         return response;
@@ -195,6 +206,7 @@ public class OBS {
     public Boolean getSourceFilterEnabled(String sourceName, String filterName) {
         GetSourceFilterResponse sourceFilter = getSourceFilter(sourceName, filterName);
         if (sourceFilter == null) {
+            log.error("unable to fetch enabled state of source filter \"{}, {}\"", sourceName, filterName);
             return null;
         }
         return sourceFilter.getFilterEnabled();
@@ -204,7 +216,7 @@ public class OBS {
         obsRemote.setSourceFilterEnabled(sourceName, filterName, enabled, TIMEOUT);
     }
 
-    public SceneItem.Transform getSourceTransform(String sceneName, Number sourceId) {
+    private SceneItem.Transform getSourceTransform(String sceneName, Number sourceId) {
         CompletableFuture<GetSceneItemTransformResponse> future = CompletableFuture.supplyAsync(
                 () -> obsRemote.getSceneItemTransform(sceneName, sourceId, TIMEOUT)
         );
@@ -213,27 +225,30 @@ public class OBS {
         try {
             response = future.get();
         } catch (InterruptedException | ExecutionException e) {
+            log.error("exception fetching source transform \"{}, {}\"", sceneName, sourceId);
             return null;
         }
 
         if (!response.isSuccessful()) {
+            log.error("unable to fetch source transform \"{}, {}\"", sceneName, sourceId);
             return null;
         }
         return response.getSceneItemTransform();
     }
 
-    public void setSourceTransform(String sceneName, Number sourceId, SceneItem.Transform transform) {
+    private void setSourceTransform(String sceneName, Number sourceId, SceneItem.Transform transform) {
         obsRemote.setSceneItemTransform(sceneName, sourceId, transform, TIMEOUT);
     }
 
     public AlertFuture moveSource(
             String sceneName,
-            Number sourceId,
+            String sourceName,
             float x,
             float y,
             int frames,
             boolean relative
     ) {
+        Number sourceId = getSourceId(sceneName, sourceName);
         SceneItem.Transform sourceTransform = getSourceTransform(sceneName, sourceId);
         Float startX = sourceTransform.getPositionX();
         Float startY = sourceTransform.getPositionY();
@@ -277,8 +292,13 @@ public class OBS {
     }
 
     // degrees, can be kind of buggy with bigger ranges
-    public AlertFuture rotateSource(String sceneName, Number sourceId, float rotation, int frames, boolean relative) {
+    public AlertFuture rotateSource(String sceneName, String sourceName, float rotation, int frames, boolean relative) {
+        Number sourceId = getSourceId(sceneName, sourceName);
         SceneItem.Transform sourceTransform = getSourceTransform(sceneName, sourceId);
+        if (sourceTransform == null) {
+            log.error("unable to rotate source \"{}, {}\", null transform data", sceneName, sourceName);
+            return AlertFuture.getCompletedFuture();
+        }
         Float start = sourceTransform.getRotation();
         float end = relative ? start + rotation : rotation;
 
@@ -315,6 +335,7 @@ public class OBS {
     public Float getSourceFilterOpacity(String sourceName, String filterName) {
         GetSourceFilterResponse sourceFilter = getSourceFilter(sourceName, filterName);
         if (sourceFilter == null) {
+            log.error("unable to fetch opacity of source filter \"{}, {}\"", sourceName, filterName);
             return null;
         }
         return sourceFilter.getFilterSettings().get("opacity").getAsFloat();
