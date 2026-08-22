@@ -12,6 +12,9 @@ import java.util.concurrent.TimeUnit;
 public class PowerShock extends Alert {
     private static final Logger log = LoggerFactory.getLogger(PowerShock.class);
     private static final String ID = "Power Shock";
+
+    private static final String AUDIO_MIC = "Mic";
+
     private static final String SCENE_ALERTS = "Alerts";
     private static final String SCENE_DSLR_COMMON = "Common - DSLR";
 
@@ -64,6 +67,8 @@ public class PowerShock extends Alert {
 
         waitUntil(SHOCK_START);
         if (success) {
+            obs.setAudioSourceMuted(AUDIO_MIC, true);
+
             // shocked icon
             obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, true);
             obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 1f, 30);
@@ -100,6 +105,7 @@ public class PowerShock extends Alert {
         if (success) {
             waitUntil(SUCCESS_LENGTH);
             obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_FREEZE, false);
+            obs.setAudioSourceMuted(AUDIO_MIC, false);
             finishClip.playClip();
             obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 0f, 30).block();
             obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, false);
