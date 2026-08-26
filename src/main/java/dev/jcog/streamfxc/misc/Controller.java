@@ -55,7 +55,7 @@ public class Controller {
                         .setRewardTrigger("Mii Channel Theme")
                         .setBitTrigger(5),
 
-                new Helium("res/ding.wav")
+                new Helium()
                         .setBitTrigger(150)
                         .setQueue(QUEUE_MIC),
                 new MuteMic("res/i_cant_hear_you.wav", "res/ding.wav")

@@ -9,15 +9,16 @@ public class Helium extends Alert {
 
     private final Filter filterHelium = new Filter("Mic", "Helium");
 
-    private final AudioFile finishClip;
+    private final AudioFile startClip = new AudioFile("res/balloon_inflate.wav");
+    private final AudioFile finishClip = new AudioFile("res/ding.wav");
 
-    public Helium(String finishFilename) {
+    public Helium() {
         super(ID);
-        finishClip = new AudioFile(finishFilename);
     }
     
     @Override
     protected void onTrigger() {
+        startClip.playClip();
         filterHelium.enable();
         waitFromNow(INTERVAL_LENGTH);
     }
