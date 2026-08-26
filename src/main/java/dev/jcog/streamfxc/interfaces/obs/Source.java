@@ -15,6 +15,10 @@ public class Source {
         this.sourceName = sourceName;
     }
 
+    public String getSourceName() {
+        return sourceName;
+    }
+
     public boolean isEnabled() {
         return obs.getSourceEnabled(sceneName, sourceName);
     }
