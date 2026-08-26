@@ -52,7 +52,7 @@ public class PowerShock extends Alert {
 
     @Override
     protected void onTrigger() {
-        boolean success = random.nextBoolean();
+        boolean success = random.nextFloat() < 0.6f;
         Source sourceWatt;
         if (success) {
             log.info("success");

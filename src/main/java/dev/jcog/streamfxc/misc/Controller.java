@@ -40,7 +40,7 @@ public class Controller {
 
                 new RolloMeow("res/rollo").setRewardTrigger("Rollo Meow"),
                 new FishHead("res/fish").setRewardTrigger("Fish Announcer"),
-                new LilOinks().setRewardTrigger("Li'l Oink"),
+                new LilOinks().setRewardTrigger("Li'l Oink").setBitTrigger(101),
                 new MiiChannel("res/mii").setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
 
                 new Helium("res/ding.wav").setBitTrigger(150).setQueue(QUEUE_MIC),
