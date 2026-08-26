@@ -16,20 +16,20 @@ public class Controller {
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
     private static final String QUEUE_MIC = "Mic";
+    private static final OBS obs = new OBS(
+            System.getenv("OBS_HOST"),
+            Integer.parseInt(System.getenv("OBS_PORT")),
+            System.getenv("OBS_PASSWORD")
+    );
 
-    private final OBS obs;
     private final TwitchApi twitchApi;
     private final List<Alert> alertList;
 
     public Controller() {
-        String host = System.getenv("OBS_HOST");
-        int port = Integer.parseInt(System.getenv("OBS_PORT"));
-        String password = System.getenv("OBS_PASSWORD");
         String channel = System.getenv("TWITCH_CHANNEL");
         String authToken = System.getenv("TWITCH_AUTH_TOKEN");
         String clientId = System.getenv("TWITCH_CLIENT_ID");
 
-        obs = new OBS(host, port, password);
         twitchApi = new TwitchApi(channel, authToken, clientId);
 
         alertList = Arrays.asList(
@@ -39,12 +39,12 @@ public class Controller {
                 new AudioAlert("Toad Scream", "res/toad_scream.wav", 0.5d).setRewardTrigger("Toad Scream"),
 
                 new RolloMeow("res/rollo").setRewardTrigger("Rollo Meow"),
-                new FishHead(obs, "res/fish").setRewardTrigger("Fish Announcer"),
+                new FishHead("res/fish").setRewardTrigger("Fish Announcer"),
                 new MiiChannel("res/mii").setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
 
-                new Helium(obs, "res/ding.wav").setBitTrigger(150).setQueue(QUEUE_MIC),
-                new MuteMic(obs, "res/i_cant_hear_you.wav", "res/ding.wav").setBitTrigger(140).setQueue(QUEUE_MIC),
-                new PowerShock(obs, "res/ding.wav").setBitTrigger(200).setQueue(QUEUE_MIC)
+                new Helium("res/ding.wav").setBitTrigger(150).setQueue(QUEUE_MIC),
+                new MuteMic("res/i_cant_hear_you.wav", "res/ding.wav").setBitTrigger(140).setQueue(QUEUE_MIC),
+                new PowerShock("res/ding.wav").setBitTrigger(200).setQueue(QUEUE_MIC)
         );
 
         // register alerts
@@ -107,5 +107,9 @@ public class Controller {
 
     public static ScheduledExecutorService getScheduler() {
         return scheduler;
+    }
+
+    public static OBS getObs() {
+        return obs;
     }
 }

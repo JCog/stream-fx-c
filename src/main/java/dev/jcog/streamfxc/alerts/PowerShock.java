@@ -1,6 +1,8 @@
 package dev.jcog.streamfxc.alerts;
 
-import dev.jcog.streamfxc.interfaces.OBS;
+import dev.jcog.streamfxc.interfaces.obs.AudioSource;
+import dev.jcog.streamfxc.interfaces.obs.Filter;
+import dev.jcog.streamfxc.interfaces.obs.Source;
 import dev.jcog.streamfxc.misc.Controller;
 import dev.jcog.streamfxc.util.AudioFile;
 import org.slf4j.Logger;
@@ -18,18 +20,6 @@ public class PowerShock extends Alert {
     private static final String SCENE_ALERTS = "Alerts";
     private static final String SCENE_DSLR_COMMON = "Common - DSLR";
 
-    private static final String SOURCE_WATT_SUCCESS = "Watt Success";
-    private static final String SOURCE_WATT_FAILURE = "Watt Failure";
-    private static final String SOURCE_DSLR_BASE = "DSLR";
-    private static final String SOURCE_DSLR_SHAKE = "DSLR (chroma key)";
-    private static final String SOURCE_ICON_SHOCKED = "Shocked Icon";
-    private static final String SOURCE_ICON_DINK = "Dink Icon";
-    private static final String SOURCE_ICON_NICE = "Nice Icon";
-
-    private static final String FILTER_SHOCK = "Power Shock";
-    private static final String FILTER_FREEZE = "Freeze";
-    private static final String FILTER_ICON_CC = "Color Correction";
-
     private static final float WATT_HOME_X = -210f;
     private static final float WATT_HOME_Y = 780f;
     private static final float DINK_HOME_X = 150f;
@@ -37,15 +27,25 @@ public class PowerShock extends Alert {
     private static final float NICE_HOME_X = 50f;
     private static final float NICE_HOME_Y = 800f;
     private static final long SHOCK_START = 4200;
-    private static final long SUCCESS_LENGTH = 45000 + SHOCK_START;
+    private static final long SUCCESS_LENGTH = 30 * 1000 + SHOCK_START;
 
-    private final OBS obs;
+    private final AudioSource audioMic = new AudioSource(AUDIO_MIC);
+    private final Source sourceWattSuccess = new Source(SCENE_ALERTS, "Watt Success");
+    private final Source sourceWattFailure = new Source(SCENE_ALERTS, "Watt Failure");
+    private final Source sourceDslr = new Source(SCENE_DSLR_COMMON, "DSLR (chroma key)");
+    private final Source sourceShockedIcon = new Source(SCENE_ALERTS, "Shocked Icon");
+    private final Source sourceDinkIcon = new Source(SCENE_ALERTS, "Dink Icon");
+    private final Source sourceNiceIcon = new Source(SCENE_ALERTS, "Nice Icon");
+    private final Filter filterShockedIconCC = sourceShockedIcon.getFilter("Color Correction");
+    private final Filter filterDinkIconCC = sourceDinkIcon.getFilter("Color Correction");
+    private final Filter filterDslrShock = new Filter("DSLR", "Power Shock");
+    private final Filter filterDslrFreeze = new Filter("DSLR", "Freeze");
+
     private final AudioFile finishClip;
     private final Random random;
 
-    public PowerShock(OBS obs, String finishFilename) {
+    public PowerShock(String finishFilename) {
         super(ID);
-        this.obs = obs;
         finishClip = new AudioFile(finishFilename);
         random = new Random();
     }
@@ -53,71 +53,71 @@ public class PowerShock extends Alert {
     @Override
     protected void onTrigger() {
         boolean success = random.nextBoolean();
-        String sourceWatt;
+        Source sourceWatt;
         if (success) {
             log.info("success");
-            sourceWatt = SOURCE_WATT_SUCCESS;
+            sourceWatt = sourceWattSuccess;
         } else {
             log.info("failure");
-            sourceWatt = SOURCE_WATT_FAILURE;
+            sourceWatt = sourceWattFailure;
         }
-        obs.moveSource(SCENE_ALERTS, sourceWatt, WATT_HOME_X, WATT_HOME_Y, 0, false);
-        obs.setSourceEnabled(SCENE_ALERTS, sourceWatt, true);
-        obs.moveSource(SCENE_ALERTS, sourceWatt, 0, 780, 60, false);
+        sourceWatt.moveAbsolute(WATT_HOME_X, WATT_HOME_Y);
+        sourceWatt.enable();
+        sourceWatt.moveAbsolute(0, 780, 60);
 
         waitUntil(SHOCK_START);
         if (success) {
-            obs.setAudioSourceMuted(AUDIO_MIC, true);
+            audioMic.mute();
 
             // shocked icon
-            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, true);
-            obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 1f, 30);
+            sourceShockedIcon.enable();
+            filterShockedIconCC.setOpacity(1f, 30);
 
             // NICE text
-            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_NICE, NICE_HOME_X, NICE_HOME_Y, 0, false);
-            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_NICE, true);
-            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_NICE, -30, -100, 20, true);
+            sourceNiceIcon.moveAbsolute(NICE_HOME_X, NICE_HOME_Y);
+            sourceNiceIcon.enable();
+            sourceNiceIcon.moveRelative(-30, -100, 20);
 
             // camera shake/flash
-            obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_FREEZE, true);
+            filterDslrFreeze.enable();
             Controller.getScheduler().schedule(this::flashCameraLoop, 0, TimeUnit.MILLISECONDS);
             Controller.getScheduler().schedule(this::shakeCameraLoop, 0, TimeUnit.MILLISECONDS);
         } else {
             // dink icon
-            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_DINK, DINK_HOME_X, DINK_HOME_Y, 0, false);
-            obs.setOpacity(SOURCE_ICON_DINK, FILTER_ICON_CC, 1f, 0);
-            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_DINK, true);
+            sourceDinkIcon.moveAbsolute(DINK_HOME_X, DINK_HOME_Y);
+            filterDinkIconCC.setOpacity(1f);
+            sourceDinkIcon.enable();
 
-            obs.moveSource(SCENE_ALERTS, SOURCE_ICON_DINK, 300, -100, 25, true).block();
-            obs.setOpacity(SOURCE_ICON_DINK, FILTER_ICON_CC, 0, 30).block();
-            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_DINK, false);
-
+            sourceDinkIcon.moveRelative(300, -100, 25).block();
+            filterDinkIconCC.setOpacity(0, 30).block();
+            sourceDinkIcon.disable();
         }
 
         waitUntil(7000);
-        obs.moveSource(SCENE_ALERTS, sourceWatt, WATT_HOME_X, WATT_HOME_Y, 60, false);
+        sourceWatt.moveAbsolute(WATT_HOME_X, WATT_HOME_Y, 60);
 
         waitUntil(9500);
-        obs.setSourceEnabled(SCENE_ALERTS, sourceWatt, false);
+        sourceWatt.disable();
         waitFromNow(2000);
 
         if (success) {
             waitUntil(SUCCESS_LENGTH);
-            obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_FREEZE, false);
-            obs.setAudioSourceMuted(AUDIO_MIC, false);
+            filterDslrFreeze.disable();
+            audioMic.unmute();
             finishClip.playClip();
-            obs.setOpacity(SOURCE_ICON_SHOCKED, FILTER_ICON_CC, 0f, 30).block();
-            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_SHOCKED, false);
-            obs.setSourceEnabled(SCENE_ALERTS, SOURCE_ICON_NICE, false);
+            filterShockedIconCC.setOpacity(0f, 30).block();
+            sourceShockedIcon.disable();
+            sourceNiceIcon.disable();
         }
+        log.info("finished");
     }
 
     private void oneShake() {
-        obs.moveSource(SCENE_DSLR_COMMON, SOURCE_DSLR_SHAKE, 0, 3, 0, true);
+        sourceDslr.moveRelative(0, 3);
         waitFromNow(33);
-        obs.moveSource(SCENE_DSLR_COMMON, SOURCE_DSLR_SHAKE, 0, -6, 0, true);
+        sourceDslr.moveRelative(0, -6);
         waitFromNow(33);
-        obs.moveSource(SCENE_DSLR_COMMON, SOURCE_DSLR_SHAKE, 0, 3, 0, true);
+        sourceDslr.moveRelative(0, 3);
     }
 
     private void shakeCameraLoop() {
@@ -134,9 +134,9 @@ public class PowerShock extends Alert {
     }
 
     private void flash() {
-        obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_SHOCK, true);
+        filterDslrShock.enable();
         waitFromNow(33);
-        obs.setSourceFilterEnabled(SOURCE_DSLR_BASE, FILTER_SHOCK, false);
+        filterDslrShock.disable();
         waitFromNow(33);
     }
 

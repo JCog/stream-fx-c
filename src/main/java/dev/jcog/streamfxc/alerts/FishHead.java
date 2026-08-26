@@ -1,6 +1,6 @@
 package dev.jcog.streamfxc.alerts;
 
-import dev.jcog.streamfxc.interfaces.OBS;
+import dev.jcog.streamfxc.interfaces.obs.Source;
 import dev.jcog.streamfxc.util.AudioFile;
 
 import java.util.List;
@@ -8,16 +8,14 @@ import java.util.Random;
 
 public class FishHead extends Alert {
     private static final String ID = "Fish Head";
-    private static final String SCENE_NAME = "Alerts";
-    private static final String SOURCE_NAME = "Fish Head";
 
-    private final OBS obs;
+    private final Source sourceFish = new Source("Alerts", "Fish Head");
+
     private final List<AudioFile> clips;
     private final Random random;
 
-    public FishHead(OBS obs, String clipDir) {
+    public FishHead(String clipDir) {
         super(ID);
-        this.obs = obs;
         random = new Random();
         clips = AudioFile.getAudioFilesInDir(clipDir);
         for (AudioFile clip : clips) {
@@ -27,13 +25,13 @@ public class FishHead extends Alert {
 
     @Override
     protected void onTrigger() {
-        obs.moveSource(SCENE_NAME, SOURCE_NAME, 0, 0, 0, false);
-        obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, true);
+        sourceFish.moveAbsolute(0, 0);
+        sourceFish.enable();
         clips.get(random.nextInt(clips.size())).playClip().block();
 
-        obs.moveSource(SCENE_NAME, SOURCE_NAME, 400, 0, 60, false).block();
+        sourceFish.moveAbsolute(400, 0, 60).block();
 
-        obs.setSourceEnabled(SCENE_NAME, SOURCE_NAME, false);
+        sourceFish.disable();
         waitFromNow(500);
     }
 }
