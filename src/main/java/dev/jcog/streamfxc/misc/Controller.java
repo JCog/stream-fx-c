@@ -33,19 +33,35 @@ public class Controller {
         twitchApi = new TwitchApi(channel, authToken, clientId);
 
         alertList = Arrays.asList(
-                new AudioAlert("Bad RNG", "res/bandit_fail.wav").setRewardTrigger("Give streamer bad RNG"),
-                new AudioAlert("Good RNG", "res/close_call.wav").setRewardTrigger("Give streamer good RNG"),
-                new AudioAlert("Nice", "res/attack_fx_c.wav").setRewardTrigger("Nice"),
-                new AudioAlert("Toad Scream", "res/toad_scream.wav", 0.5d).setRewardTrigger("Toad Scream"),
+                new AudioAlert("Bad RNG", "res/bandit_fail.wav")
+                        .setRewardTrigger("Give streamer bad RNG"),
+                new AudioAlert("Good RNG", "res/close_call.wav")
+                        .setRewardTrigger("Give streamer good RNG"),
+                new AudioAlert("Nice", "res/attack_fx_c.wav")
+                        .setRewardTrigger("Nice"),
+                new AudioAlert("Toad Scream", "res/toad_scream.wav", 0.5d)
+                        .setRewardTrigger("Toad Scream")
+                        .setBitTrigger(50),
 
-                new RolloMeow("res/rollo").setRewardTrigger("Rollo Meow"),
-                new FishHead("res/fish").setRewardTrigger("Fish Announcer"),
-                new LilOinks().setRewardTrigger("Li'l Oink").setBitTrigger(101),
-                new MiiChannel("res/mii").setRewardTrigger("Mii Channel Theme").setBitTrigger(5),
+                new RolloMeow("res/rollo")
+                        .setRewardTrigger("Rollo Meow"),
+                new FishHead("res/fish")
+                        .setRewardTrigger("Fish Announcer"),
+                new LilOinks().setRewardTrigger("Li'l Oink")
+                        .setBitTrigger(101),
+                new MiiChannel("res/mii")
+                        .setRewardTrigger("Mii Channel Theme")
+                        .setBitTrigger(5),
 
-                new Helium("res/ding.wav").setBitTrigger(150).setQueue(QUEUE_MIC),
-                new MuteMic("res/i_cant_hear_you.wav", "res/ding.wav").setBitTrigger(140).setQueue(QUEUE_MIC),
-                new PowerShock("res/ding.wav").setBitTrigger(200).setQueue(QUEUE_MIC)
+                new Helium("res/ding.wav")
+                        .setBitTrigger(150)
+                        .setQueue(QUEUE_MIC),
+                new MuteMic("res/i_cant_hear_you.wav", "res/ding.wav")
+                        .setBitTrigger(140)
+                        .setQueue(QUEUE_MIC),
+                new PowerShock("res/ding.wav")
+                        .setBitTrigger(200)
+                        .setQueue(QUEUE_MIC)
         );
 
         // register alerts
