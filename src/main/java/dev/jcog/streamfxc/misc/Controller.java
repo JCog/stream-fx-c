@@ -43,25 +43,25 @@ public class Controller {
                         .setRewardTrigger("Toad Scream")
                         .setBitTrigger(50),
 
-                new RolloMeow("res/rollo")
+                new RolloMeow()
                         .setRewardTrigger("Rollo Meow")
                         .setBitTrigger(20),
-                new FishHead("res/fish")
+                new FishHead()
                         .setRewardTrigger("Fish Announcer")
                         .setBitTrigger(99),
                 new LilOinks().setRewardTrigger("Li'l Oink")
                         .setBitTrigger(101),
-                new MiiChannel("res/mii")
+                new MiiChannel()
                         .setRewardTrigger("Mii Channel Theme")
                         .setBitTrigger(5),
 
                 new Helium()
                         .setBitTrigger(150)
                         .setQueue(QUEUE_MIC),
-                new MuteMic("res/i_cant_hear_you.wav", "res/ding.wav")
+                new MuteMic()
                         .setBitTrigger(140)
                         .setQueue(QUEUE_MIC),
-                new PowerShock("res/ding.wav")
+                new PowerShock()
                         .setBitTrigger(200)
                         .setQueue(QUEUE_MIC)
         );

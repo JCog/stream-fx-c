@@ -7,10 +7,9 @@ public class Helium extends Alert {
     private static final String ID = "Helium";
     private static final int INTERVAL_LENGTH = 60 * 1000;
 
-    private final Filter filterHelium = new Filter("Mic", "Helium");
-
     private final AudioFile startClip = new AudioFile("res/balloon_inflate.wav");
     private final AudioFile finishClip = new AudioFile("res/ding.wav");
+    private final Filter filterHelium = new Filter("Mic", "Helium");
 
     public Helium() {
         super(ID);

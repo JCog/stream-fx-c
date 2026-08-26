@@ -40,14 +40,11 @@ public class PowerShock extends Alert {
     private final Filter filterDinkIconCC = sourceDinkIcon.getFilter("Color Correction");
     private final Filter filterDslrShock = new Filter("DSLR", "Power Shock");
     private final Filter filterDslrFreeze = new Filter("DSLR", "Freeze");
+    private final AudioFile finishClip = new AudioFile("res/ding.wav");
+    private final Random random = new Random();
 
-    private final AudioFile finishClip;
-    private final Random random;
-
-    public PowerShock(String finishFilename) {
+    public PowerShock() {
         super(ID);
-        finishClip = new AudioFile(finishFilename);
-        random = new Random();
     }
 
     @Override

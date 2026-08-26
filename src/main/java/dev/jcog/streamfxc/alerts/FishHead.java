@@ -10,14 +10,11 @@ public class FishHead extends Alert {
     private static final String ID = "Fish Head";
 
     private final Source sourceFish = new Source("Alerts", "Fish Head");
+    private final List<AudioFile> clips = AudioFile.getAudioFilesInDir("res/fish");
+    private final Random random = new Random();
 
-    private final List<AudioFile> clips;
-    private final Random random;
-
-    public FishHead(String clipDir) {
+    public FishHead() {
         super(ID);
-        random = new Random();
-        clips = AudioFile.getAudioFilesInDir(clipDir);
         for (AudioFile clip : clips) {
             clip.setVolume(0.5d);
         }

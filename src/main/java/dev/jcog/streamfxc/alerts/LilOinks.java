@@ -30,11 +30,10 @@ public class LilOinks extends Alert {
     private final Source sourceWhite = getOinkSource("White");
 
     private final AudioFile audioTornadoJump = new AudioFile("res/tornado_jump.wav");
-    private final Random random;
+    private final Random random = new Random();
 
     public LilOinks() {
         super(ID);
-        random = new Random();
     }
 
     @Override

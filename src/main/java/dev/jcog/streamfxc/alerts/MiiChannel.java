@@ -8,13 +8,12 @@ import java.util.List;
 public class MiiChannel extends Alert {
     private static final String ID = "Mii Channel";
 
-    private final List<AudioFile> clips;
+    private final List<AudioFile> clips = AudioFile.getAudioFilesInDir("res/mii");
 
     private int nextClip;
 
-    public MiiChannel(String clipDir) {
+    public MiiChannel() {
         super(ID);
-        clips = AudioFile.getAudioFilesInDir(clipDir);
         nextClip = 0;
     }
 

@@ -8,13 +8,11 @@ import java.util.Random;
 public class RolloMeow extends Alert {
     private static final String ID = "Rollo Meow";
 
-    private final List<AudioFile> clips;
-    private final Random random;
+    private final List<AudioFile> clips = AudioFile.getAudioFilesInDir("res/rollo");;
+    private final Random random = new Random();
 
-    public RolloMeow(String clipDir) {
+    public RolloMeow() {
         super(ID);
-        random = new Random();
-        clips = AudioFile.getAudioFilesInDir(clipDir);
     }
 
     @Override

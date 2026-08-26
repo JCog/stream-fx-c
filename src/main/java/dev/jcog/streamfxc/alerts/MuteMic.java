@@ -12,14 +12,11 @@ public class MuteMic extends Alert {
 
     private final AudioSource sourceMic = new AudioSource("Mic");
     private final Source sourceMuteIcon = new Source("Common - DSLR", "Mute Icon");
+    private final AudioFile startAudio = new AudioFile("res/i_cant_hear_you.wav");
+    private final AudioFile finishAudio = new AudioFile("res/ding.wav");
 
-    private final AudioFile startAudio;
-    private final AudioFile finishAudio;
-
-    public MuteMic(String startFilename, String finishFilename) {
+    public MuteMic() {
         super(ID);
-        startAudio = new AudioFile(startFilename);
-        finishAudio = new AudioFile(finishFilename);
     }
 
     @Override
