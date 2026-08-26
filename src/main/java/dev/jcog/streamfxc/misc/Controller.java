@@ -44,9 +44,11 @@ public class Controller {
                         .setBitTrigger(50),
 
                 new RolloMeow("res/rollo")
-                        .setRewardTrigger("Rollo Meow"),
+                        .setRewardTrigger("Rollo Meow")
+                        .setBitTrigger(20),
                 new FishHead("res/fish")
-                        .setRewardTrigger("Fish Announcer"),
+                        .setRewardTrigger("Fish Announcer")
+                        .setBitTrigger(99),
                 new LilOinks().setRewardTrigger("Li'l Oink")
                         .setBitTrigger(101),
                 new MiiChannel("res/mii")
