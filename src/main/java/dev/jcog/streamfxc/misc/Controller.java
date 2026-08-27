@@ -54,6 +54,9 @@ public class Controller {
                 new MiiChannel()
                         .setRewardTrigger("Mii Channel Theme")
                         .setBitTrigger(5),
+                new Nut()
+                        .setRewardTrigger("Nut")
+                        .setBitTrigger(80),
 
                 new Helium()
                         .setBitTrigger(150)
