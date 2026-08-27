@@ -30,6 +30,7 @@ public class LilOinks extends Alert {
     private final Source sourceWhite = getOinkSource("White");
 
     private final AudioFile audioTornadoJump = new AudioFile("res/tornado_jump.wav");
+    private final AudioFile audioOinkRun = new AudioFile("res/oink_run.wav");
     private final Random random = new Random();
 
     public LilOinks() {
@@ -69,7 +70,8 @@ public class LilOinks extends Alert {
         waitFromNow(200);
         oink.moveAbsolute(HOLD_X, OINK_Y, 90).block();
         waitFromNow(2000);
-        oink.moveAbsolute(DEST_X, OINK_Y, 15 * 60).block();
+        audioOinkRun.playClip();
+        oink.moveAbsolute(DEST_X, OINK_Y, 2 * 60).block();
         oink.disable();
         waitFromNow(500);
     }
