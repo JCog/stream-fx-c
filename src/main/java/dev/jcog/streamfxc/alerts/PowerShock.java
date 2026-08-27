@@ -27,7 +27,8 @@ public class PowerShock extends Alert {
     private static final float NICE_HOME_X = 50f;
     private static final float NICE_HOME_Y = 800f;
     private static final long SHOCK_START = 4200;
-    private static final long SUCCESS_LENGTH = 30 * 1000 + SHOCK_START;
+    private static final long SUCCESS_LENGTH_BITS = 30 * 1000 + SHOCK_START;
+    private static final long SUCCESS_LENGTH_OTHER = 10 * 1000 + SHOCK_START;
 
     private final AudioSource audioMic = new AudioSource(AUDIO_MIC);
     private final Source sourceWattSuccess = new Source(SCENE_ALERTS, "Watt Success");
@@ -51,12 +52,15 @@ public class PowerShock extends Alert {
     protected void onTrigger() {
         boolean success = random.nextFloat() < 0.6f;
         Source sourceWatt;
+        long successLength;
         if (success) {
             log.info("success");
             sourceWatt = sourceWattSuccess;
+            successLength = triggerSource == TriggerSource.BITS ? SUCCESS_LENGTH_BITS : SUCCESS_LENGTH_OTHER;
         } else {
             log.info("failure");
             sourceWatt = sourceWattFailure;
+            successLength = 0;
         }
         sourceWatt.moveAbsolute(WATT_HOME_X, WATT_HOME_Y);
         sourceWatt.enable();
@@ -77,8 +81,8 @@ public class PowerShock extends Alert {
 
             // camera shake/flash
             filterDslrFreeze.enable();
-            Controller.getScheduler().schedule(this::flashCameraLoop, 0, TimeUnit.MILLISECONDS);
-            Controller.getScheduler().schedule(this::shakeCameraLoop, 0, TimeUnit.MILLISECONDS);
+            Controller.getScheduler().schedule(() -> flashCameraLoop(successLength), 0, TimeUnit.MILLISECONDS);
+            Controller.getScheduler().schedule(() -> shakeCameraLoop(successLength), 0, TimeUnit.MILLISECONDS);
         } else {
             // dink icon
             sourceDinkIcon.moveAbsolute(DINK_HOME_X, DINK_HOME_Y);
@@ -98,7 +102,7 @@ public class PowerShock extends Alert {
         waitFromNow(2000);
 
         if (success) {
-            waitUntil(SUCCESS_LENGTH);
+            waitUntil(successLength);
             filterDslrFreeze.disable();
             audioMic.unmute();
             finishClip.playClip();
@@ -117,9 +121,9 @@ public class PowerShock extends Alert {
         sourceDslr.moveRelative(0, 3);
     }
 
-    private void shakeCameraLoop() {
+    private void shakeCameraLoop(long successLength) {
         long length = 3500;
-        while (elapsedMillis() < SUCCESS_LENGTH - length) {
+        while (elapsedMillis() < successLength - length) {
             long start = elapsedMillis();
             oneShake();
             waitFromNow(67);
@@ -137,9 +141,9 @@ public class PowerShock extends Alert {
         waitFromNow(33);
     }
 
-    private void flashCameraLoop() {
+    private void flashCameraLoop(long successLength) {
         long length = 2000;
-        while (elapsedMillis() < SUCCESS_LENGTH - length) {
+        while (elapsedMillis() < successLength - length) {
             long start = elapsedMillis();
             flash();
             flash();

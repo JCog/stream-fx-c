@@ -18,11 +18,6 @@ public class MuteMic extends Alert {
     public MuteMic() {
         super(ID);
     }
-
-    @Override
-    public String getId() {
-        return ID;
-    }
     
     @Override
     protected void onTrigger() {

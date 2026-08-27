@@ -20,6 +20,13 @@ public abstract class Alert implements TwitchEventListener {
     private static final Map<String, Queue<Alert>> QUEUE_MAP = new HashMap<>();
 
     protected String id;
+    protected TriggerSource triggerSource;
+
+    protected enum TriggerSource {
+        CHANNEL_POINTS,
+        BITS,
+        MANUAL,
+    }
 
     public Alert(String id) {
         this.id = id;
@@ -94,6 +101,7 @@ public abstract class Alert implements TwitchEventListener {
     public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent channelPointsEvent) {
         if (channelPointsEvent.getReward().getTitle().equals(rewardName)) {
             log.info("\"{}\" queued by {} via \"{}\" reward", getId(), channelPointsEvent.getUserName(), rewardName);
+            this.triggerSource = TriggerSource.CHANNEL_POINTS;
             queueAlert(this);
         }
     }
@@ -102,12 +110,14 @@ public abstract class Alert implements TwitchEventListener {
     public void onCheer(ChannelCheerEvent cheerEvent) {
         if (cheerEvent.getBits().equals(bitAmount)) {
             log.info("\"{}\" queued by {} via {} bits", getId(), cheerEvent.getUserName(), bitAmount);
+            this.triggerSource = TriggerSource.BITS;
             queueAlert(this);
         }
     }
 
     public void queueManually() {
         log.info("\"{}\" queued manually", getId());
+        this.triggerSource = TriggerSource.MANUAL;
         queueAlert(this);
     }
 

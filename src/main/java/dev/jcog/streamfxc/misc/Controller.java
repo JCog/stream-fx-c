@@ -62,6 +62,7 @@ public class Controller {
                         .setBitTrigger(140)
                         .setQueue(QUEUE_MIC),
                 new PowerShock()
+                        .setRewardTrigger("Power Shock")
                         .setBitTrigger(200)
                         .setQueue(QUEUE_MIC)
         );
