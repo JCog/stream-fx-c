@@ -44,21 +44,26 @@ public class PowerShock extends Alert {
     private final AudioFile finishClip = new AudioFile("res/ding.wav");
     private final Random random = new Random();
 
+    private int failureStreak;
+
     public PowerShock() {
         super(ID);
+        failureStreak = 0;
     }
 
     @Override
     protected void onTrigger() {
-        boolean success = random.nextFloat() < 0.6f;
+        boolean success = failureStreak >= 2 || random.nextFloat() < 0.6f;
         Source sourceWatt;
         long successLength;
         if (success) {
             log.info("success");
+            failureStreak = 0;
             sourceWatt = sourceWattSuccess;
             successLength = triggerSource == TriggerSource.BITS ? SUCCESS_LENGTH_BITS : SUCCESS_LENGTH_OTHER;
         } else {
             log.info("failure");
+            failureStreak++;
             sourceWatt = sourceWattFailure;
             successLength = 0;
         }
