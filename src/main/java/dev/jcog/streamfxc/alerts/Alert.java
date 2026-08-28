@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public abstract class Alert implements TwitchEventListener {
@@ -62,13 +59,20 @@ public abstract class Alert implements TwitchEventListener {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private String rewardName = null;
+    private String rewardId = null;
     private Integer bitAmount = null;
     private String queueName = null;
+    private Set<String> sceneWhitelist = null;
+
     private Instant triggerTime = null;
 
     public Alert setRewardTrigger(String rewardName) {
         this.rewardName = rewardName;
         return this;
+    }
+
+    public void setRewardId(String rewardId) {
+        this.rewardId = rewardId;
     }
 
     public Alert setBitTrigger(int bitAmount) {
@@ -78,6 +82,12 @@ public abstract class Alert implements TwitchEventListener {
 
     public Alert setQueue(String queueName) {
         this.queueName = queueName;
+        return this;
+    }
+
+    // whitelisted for all scenes if not specified
+    public Alert setSceneWhitelist(String ... sceneNames) {
+        sceneWhitelist = new HashSet<>(List.of(sceneNames));
         return this;
     }
 
@@ -93,8 +103,19 @@ public abstract class Alert implements TwitchEventListener {
         return rewardName;
     }
 
+    public String getRewardId() {
+        return rewardId;
+    }
+
     public Integer getBitAmount() {
         return bitAmount;
+    }
+
+    public boolean isWhitelisted(String scene) {
+        if (sceneWhitelist == null) {
+            return true;
+        }
+        return sceneWhitelist.contains(scene);
     }
 
     @Override

@@ -3,12 +3,14 @@ package dev.jcog.streamfxc.interfaces;
 import com.google.gson.JsonObject;
 import dev.jcog.streamfxc.misc.Controller;
 import io.obswebsocket.community.client.OBSRemoteController;
+import io.obswebsocket.community.client.OBSRemoteControllerBuilder;
 import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
 import io.obswebsocket.community.client.message.response.filters.GetSourceFilterResponse;
 import io.obswebsocket.community.client.message.response.inputs.GetInputMuteResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemEnabledResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemIdResponse;
 import io.obswebsocket.community.client.message.response.sceneitems.GetSceneItemTransformResponse;
+import io.obswebsocket.community.client.message.response.scenes.GetCurrentProgramSceneResponse;
 import io.obswebsocket.community.client.model.SceneItem;
 import dev.jcog.streamfxc.util.AlertFuture;
 import dev.jcog.streamfxc.util.AlertTask;
@@ -17,40 +19,65 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 public class OBS {
     private static final Logger log = LoggerFactory.getLogger(OBS.class);
     private static final int TIMEOUT = 1000;
     private static final int FRAMERATE = 60;
 
-    private final OBSRemoteController obsRemote;
     private final Map<String, Map<String, Number>> sourceIdCache;
 
+    private OBSRemoteControllerBuilder builder;
+    private OBSRemoteController obsRemote;
     private boolean ready = false;
-    private String sceneCurrent = null;
-    private String scenePrev = null;
 
     public OBS(String host, int port, String password) {
         sourceIdCache = new HashMap<>();
-        obsRemote = OBSRemoteController.builder()
+        builder =  OBSRemoteController.builder()
                 .host(host)
                 .port(port)
                 .password(password)
                 .lifecycle()
-                    .onReady(this::init)
-                    .and()
-                .registerEventListener(CurrentProgramSceneChangedEvent.class, this::onSceneChanged)
-                .build();
-        obsRemote.connect();
+                    .onReady(this::onReady)
+                    .and();
+    }
+
+    private void onReady() {
+        ready = true;
+    }
+
+    public boolean isReady() {
+        return ready;
+    }
+
+    public void registerSceneChangeEvent(Consumer<CurrentProgramSceneChangedEvent> consumer) {
+        builder = builder.registerEventListener(CurrentProgramSceneChangedEvent.class, consumer);
     }
 
     public void init() {
-        ready = true;
-        obsRemote.getCurrentProgramScene(getCurrentProgramSceneResponse -> {
-            if (getCurrentProgramSceneResponse.isSuccessful()) {
-                sceneCurrent = getCurrentProgramSceneResponse.getCurrentProgramSceneName();
-            }
-        });
+        obsRemote = builder.build();
+        obsRemote.connect();
+    }
+
+    public String getCurrentScene() {
+        CompletableFuture<GetCurrentProgramSceneResponse> future = CompletableFuture.supplyAsync(
+                () -> obsRemote.getCurrentProgramScene(TIMEOUT)
+        );
+        GetCurrentProgramSceneResponse response;
+        try {
+            response = future.get();
+        } catch (Exception e) {
+            log.error("exception fetching current scene");
+            return null;
+        }
+
+        if (response == null || !response.isSuccessful()) {
+            log.error("unable to fetch current scene");
+            return null;
+        }
+
+        return response.getCurrentProgramSceneName();
     }
 
     public void close() {
@@ -374,12 +401,5 @@ public class OBS {
             }
         }, 0, 1000 / FRAMERATE, TimeUnit.MILLISECONDS);
         return future;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private void onSceneChanged(CurrentProgramSceneChangedEvent event) {
-        scenePrev = sceneCurrent;
-        sceneCurrent = event.getSceneName();
     }
 }

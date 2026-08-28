@@ -107,4 +107,13 @@ public class TwitchApi {
                 .getCustomRewards(authToken, user.getId(), rewardIds, onlyManageableRewards).execute()
                 .getRewards();
     }
+
+    public void updateReward(CustomReward updatedReward) throws HystrixRuntimeException {
+        twitchClient.getHelix().updateCustomReward(
+                authToken,
+                user.getId(),
+                updatedReward.getId(),
+                updatedReward
+        ).execute();
+    }
 }

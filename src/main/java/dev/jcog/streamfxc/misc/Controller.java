@@ -6,12 +6,12 @@ import com.netflix.hystrix.exception.HystrixRuntimeException;
 import dev.jcog.streamfxc.alerts.*;
 import dev.jcog.streamfxc.interfaces.OBS;
 import dev.jcog.streamfxc.interfaces.TwitchApi;
+import io.obswebsocket.community.client.message.event.scenes.CurrentProgramSceneChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Console;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -19,6 +19,14 @@ public class Controller {
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
     private static final String QUEUE_MIC = "Mic";
+    private static final String[] WHITELIST_SMALL_CAMERA = {
+            "Desktop",
+            "Casual (SD)",
+            "Casual (HD)",
+            "Rando",
+            "Speedrun (HD)",
+            "Speedrun (SD)",
+    };
     private static final OBS obs = new OBS(
             System.getenv("OBS_HOST"),
             Integer.parseInt(System.getenv("OBS_PORT")),
@@ -52,14 +60,16 @@ public class Controller {
                 new FishHead()
                         .setRewardTrigger("Fish Announcer")
                         .setBitTrigger(99),
-                new LilOinks().setRewardTrigger("Li'l Oink")
+                new LilOinks()
+                        .setRewardTrigger("Li'l Oink")
                         .setBitTrigger(101),
                 new MiiChannel()
                         .setRewardTrigger("Mii Channel Theme")
                         .setBitTrigger(5),
                 new Nut()
                         .setRewardTrigger("Nut")
-                        .setBitTrigger(80),
+                        .setBitTrigger(80)
+                        .setSceneWhitelist(WHITELIST_SMALL_CAMERA),
 
                 new Helium()
                         .setBitTrigger(150)
@@ -71,7 +81,31 @@ public class Controller {
                         .setRewardTrigger("Power Shock")
                         .setBitTrigger(200)
                         .setQueue(QUEUE_MIC)
+                        .setSceneWhitelist(WHITELIST_SMALL_CAMERA)
         );
+
+        // get alert reward IDs
+        Map<String, String> rewardNamesToIds = new HashMap<>();
+        List<CustomReward> customRewards = twitchApi.getCustomRewards(null, true);
+        for (CustomReward reward : customRewards) {
+            rewardNamesToIds.put(reward.getTitle(), reward.getId());
+        }
+
+        List<String> nullIds = new ArrayList<>();
+        for (Alert alert : alertList) {
+            if (alert.getRewardName() != null) {
+                String name = alert.getRewardName();
+                String id = rewardNamesToIds.get(name);
+                if (id == null) {
+                    nullIds.add(name);
+                } else {
+                    alert.setRewardId(id);
+                }
+            }
+        }
+        if (!nullIds.isEmpty()) {
+            log.warn("Alerts with no manageable Channel Point Reward:\n    {}", nullIds);
+        }
 
         // register alerts
         StringBuilder sb = new StringBuilder("Alerts:\n");
@@ -90,6 +124,14 @@ public class Controller {
         }
         sb.setLength(sb.length() - 1);
         log.info(sb.toString());
+
+        obs.registerSceneChangeEvent(this::onSceneChanged);
+        obs.init();
+
+        // I don't like using a while loop here, but trying to query anything from OBS from within any callback always
+        // times out for reasons I don't currently understand
+        while (!getObs().isReady()) {}
+        onObsReady();
     }
 
     public boolean listen() {
@@ -129,6 +171,44 @@ public class Controller {
         }
     }
 
+    private void onObsReady() {
+        // initialize enabling alerts
+        String currentScene = getObs().getCurrentScene();
+        List<Alert> alerts = alertList.stream().filter(a -> a.isWhitelisted(currentScene)).toList();
+        setAlertsPaused(alerts, false);
+    }
+
+    private void onSceneChanged(CurrentProgramSceneChangedEvent event) {
+        event.getSceneName();
+        List<Alert> toUnpause = alertList.stream().filter(a -> a.isWhitelisted(event.getSceneName())).toList();
+        List<Alert> toPause = alertList.stream().filter(a -> !a.isWhitelisted(event.getSceneName())).toList();
+        setAlertsPaused(toUnpause, false);
+        setAlertsPaused(toPause, true);
+    }
+
+    private void setAlertsPaused(List<Alert> alerts, boolean pause) {
+        List<String> rewardIds = alerts.stream()
+                .map(Alert::getRewardId)
+                .filter(Objects::nonNull)
+                .toList();
+        if (rewardIds.isEmpty()) {
+            return;
+        }
+
+        List<CustomReward> customRewards = twitchApi.getCustomRewards(rewardIds, true).stream()
+                .filter(r -> r.isPaused() != pause)
+                .toList();
+        for (CustomReward reward : customRewards) {
+            reward = reward.withIsPaused(pause);
+            try {
+                twitchApi.updateReward(reward);
+                log.info("{} \"{}\"", pause ? "paused" : "unpaused", reward.getTitle());
+            } catch (HystrixRuntimeException e) {
+                log.error("unable to {} reward \"{}\"", pause ? "pause" : "unpause", reward.getTitle());
+            }
+        }
+    }
+
     private void remakeChannelPointReward(String oldTitle, String newTitle) {
         List<CustomReward> rewards;
         try {
@@ -149,7 +229,7 @@ public class Controller {
                 log.info("Successfully recreated \"{}\" as \"{}\"", oldTitle, newTitle);
 
                 Reward.Image img = reward.getImage();
-                log.info("images:\n{}\n{}\n{}\n", img.getUrl1x(), img.getUrl2x(), img.getUrl4x());
+                log.info("images:\n{}\n{}\n{}", img.getUrl1x(), img.getUrl2x(), img.getUrl4x());
                 return;
             }
         }
@@ -157,6 +237,7 @@ public class Controller {
     }
 
     public void closeAll() {
+        setAlertsPaused(alertList, true);
         scheduler.shutdown();
         twitchApi.close();
         obs.close();
