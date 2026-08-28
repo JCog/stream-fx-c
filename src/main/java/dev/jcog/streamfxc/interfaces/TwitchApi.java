@@ -8,6 +8,8 @@ import com.github.twitch4j.eventsub.events.ChannelCheerEvent;
 import com.github.twitch4j.eventsub.events.CustomRewardRedemptionAddEvent;
 import com.github.twitch4j.eventsub.socket.IEventSubSocket;
 import com.github.twitch4j.eventsub.subscriptions.SubscriptionTypes;
+import com.github.twitch4j.helix.domain.CustomReward;
+import com.github.twitch4j.helix.domain.CustomRewardList;
 import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.UserList;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
@@ -16,7 +18,9 @@ import dev.jcog.streamfxc.util.TwitchEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 public class TwitchApi {
     private static final Logger log = LoggerFactory.getLogger(TwitchApi.class);
@@ -84,5 +88,23 @@ public class TwitchApi {
             return null;
         }
         return userList.getUsers().getFirst();
+    }
+
+    public CustomReward createCustomReward(CustomReward customReward) throws HystrixRuntimeException {
+        CustomRewardList customRewardList = twitchClient.getHelix()
+                .createCustomReward(authToken, user.getId(), customReward).execute();
+        if (customRewardList.getRewards().isEmpty()) {
+            return null;
+        }
+        return customRewardList.getRewards().getFirst();
+    }
+
+    public List<CustomReward> getCustomRewards(
+            Collection<String> rewardIds,
+            Boolean onlyManageableRewards
+    ) throws HystrixRuntimeException {
+        return twitchClient.getHelix()
+                .getCustomRewards(authToken, user.getId(), rewardIds, onlyManageableRewards).execute()
+                .getRewards();
     }
 }

@@ -1,5 +1,8 @@
 package dev.jcog.streamfxc.misc;
 
+import com.github.twitch4j.eventsub.domain.Reward;
+import com.github.twitch4j.helix.domain.CustomReward;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
 import dev.jcog.streamfxc.alerts.*;
 import dev.jcog.streamfxc.interfaces.OBS;
 import dev.jcog.streamfxc.interfaces.TwitchApi;
@@ -107,6 +110,10 @@ public class Controller {
                 for (int i = 0; i < alertList.size(); i++) {
                     console.printf("%d. %s%n", i, alertList.get(i).getId());
                 }
+            } else if (line.startsWith("remake")) {
+                String oldTitle = console.readLine("Old title: ");
+                String newTitle = console.readLine("New title: ");
+                remakeChannelPointReward(oldTitle, newTitle);
             } else {
                 Integer alertIdx;
                 try {
@@ -120,6 +127,33 @@ public class Controller {
                 }
             }
         }
+    }
+
+    private void remakeChannelPointReward(String oldTitle, String newTitle) {
+        List<CustomReward> rewards;
+        try {
+            rewards = twitchApi.getCustomRewards(null, false);
+        } catch (HystrixRuntimeException e) {
+            log.error(e.getMessage());
+            return;
+        }
+        for (CustomReward reward : rewards) {
+            if (reward.getTitle().equals(oldTitle)) {
+                reward = reward.withTitle(newTitle).withIsEnabled(false);
+                try {
+                    twitchApi.createCustomReward(reward);
+                } catch (HystrixRuntimeException e) {
+                    log.error(e.getMessage());
+                    return;
+                }
+                log.info("Successfully recreated \"{}\" as \"{}\"", oldTitle, newTitle);
+
+                Reward.Image img = reward.getImage();
+                log.info("images:\n{}\n{}\n{}\n", img.getUrl1x(), img.getUrl2x(), img.getUrl4x());
+                return;
+            }
+        }
+        log.warn("Unable to find reward named \"{}\"", oldTitle);
     }
 
     public void closeAll() {
