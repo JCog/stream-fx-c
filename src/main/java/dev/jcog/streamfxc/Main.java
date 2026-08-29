@@ -8,7 +8,13 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
-        Controller controller = new Controller();
+        Controller controller;
+        try {
+            controller = new Controller();
+        } catch (RuntimeException e) {
+            System.exit(1);
+            throw new RuntimeException();
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Stream FX C stopping...");

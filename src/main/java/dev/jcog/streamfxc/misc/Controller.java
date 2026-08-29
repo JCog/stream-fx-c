@@ -36,13 +36,14 @@ public class Controller {
     private final TwitchApi twitchApi;
     private final List<Alert> alertList;
 
-    public Controller() {
+    public Controller() throws RuntimeException {
         String channel = System.getenv("TWITCH_CHANNEL");
         String authToken = System.getenv("TWITCH_AUTH_TOKEN");
         String clientId = System.getenv("TWITCH_CLIENT_ID");
 
         twitchApi = new TwitchApi(channel, authToken, clientId);
 
+        // create Alerts
         alertList = Arrays.asList(
                 // Audio
                 new AudioAlert("Bad RNG", "res/bandit_fail.wav")
@@ -91,6 +92,17 @@ public class Controller {
                         .withBitTrigger(20)
         );
 
+        // ensure no repeated Alert IDs
+        Set<String> ids = new HashSet<>();
+        for (Alert alert : alertList) {
+            String id = alert.getId();
+            if (ids.contains(id)) {
+                log.error("repeated alert ID \"{}\"", id);
+                throw new RuntimeException();
+            }
+            ids.add(id);
+        }
+
         // get alert reward IDs
         Map<String, String> rewardNamesToIds = new HashMap<>();
         List<CustomReward> customRewards;
@@ -104,6 +116,8 @@ public class Controller {
             rewardNamesToIds.put(reward.getTitle(), reward.getId());
         }
 
+        // get Twitch Channel Point Reward IDs and log any that are unmanageable
+        // (use "remake" command to create new Rewards that can be managed via the API)
         List<String> nullIds = new ArrayList<>();
         for (Alert alert : alertList) {
             if (alert.getRewardName() != null) {
@@ -138,6 +152,7 @@ public class Controller {
         sb.setLength(sb.length() - 1);
         log.info(sb.toString());
 
+        // initialize OBS
         obs.registerSceneChangeEvent(this::onSceneChanged);
         obs.init();
 
@@ -192,6 +207,7 @@ public class Controller {
     }
 
     private void onSceneChanged(CurrentProgramSceneChangedEvent event) {
+        // pause/unpause Channel Point Rewards based on Alerts' OBS scene whitelists
         event.getSceneName();
         List<Alert> toUnpause = alertList.stream().filter(a -> a.isWhitelisted(event.getSceneName())).toList();
         List<Alert> toPause = alertList.stream().filter(a -> !a.isWhitelisted(event.getSceneName())).toList();
@@ -200,6 +216,7 @@ public class Controller {
     }
 
     private void setAlertsPaused(List<Alert> alerts, boolean pause) {
+        // get only known manageable reward IDs
         List<String> rewardIds = alerts.stream()
                 .map(Alert::getRewardId)
                 .filter(Objects::nonNull)
@@ -208,6 +225,7 @@ public class Controller {
             return;
         }
 
+        // only pause/unpause alerts that aren't already in the desired state
         List<CustomReward> customRewards;
         try {
             customRewards = twitchApi.getCustomRewards(rewardIds, true).stream()
@@ -233,6 +251,9 @@ public class Controller {
     }
 
     private void remakeChannelPointReward(String oldTitle, String newTitle) {
+        // take an existing Channel Point Reward and create a copy of it with a different title
+        // images don't seem to be able to be added from the API, so links to existing images, if they exist, are logged
+        // so they can be downloaded and reuploaded manually
         List<CustomReward> rewards;
         try {
             rewards = twitchApi.getCustomRewards(null, false);
