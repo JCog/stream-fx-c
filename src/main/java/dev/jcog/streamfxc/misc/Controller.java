@@ -44,6 +44,7 @@ public class Controller {
         twitchApi = new TwitchApi(channel, authToken, clientId);
 
         alertList = Arrays.asList(
+                // Audio
                 new AudioAlert("Bad RNG", "res/bandit_fail.wav")
                         .withRewardTrigger("Give streamer bad RNG"),
                 new AudioAlert("Good RNG", "res/close_call.wav")
@@ -54,9 +55,20 @@ public class Controller {
                         .withRewardTrigger("Toad Scream")
                         .withBitTrigger(50),
 
-                new RolloMeow()
-                        .withRewardTrigger("Rollo Meow")
-                        .withBitTrigger(20),
+                // Mic Queue
+                new Helium()
+                        .withBitTrigger(150)
+                        .withQueue(QUEUE_MIC),
+                new MuteMic()
+                        .withBitTrigger(140)
+                        .withQueue(QUEUE_MIC),
+                new PowerShock()
+                        .withRewardTrigger("Power Shock")
+                        .withBitTrigger(200)
+                        .withQueue(QUEUE_MIC)
+                        .withSceneWhitelist(WHITELIST_SMALL_CAMERA),
+
+                // Misc
                 new FishHead()
                         .withRewardTrigger("Realistic Fish Head")
                         .withBitTrigger(99),
@@ -70,18 +82,13 @@ public class Controller {
                         .withRewardTrigger("Nut")
                         .withBitTrigger(80)
                         .withSceneWhitelist(WHITELIST_SMALL_CAMERA),
-
-                new Helium()
-                        .withBitTrigger(150)
-                        .withQueue(QUEUE_MIC),
-                new MuteMic()
-                        .withBitTrigger(140)
-                        .withQueue(QUEUE_MIC),
-                new PowerShock()
-                        .withRewardTrigger("Power Shock")
-                        .withBitTrigger(200)
-                        .withQueue(QUEUE_MIC)
-                        .withSceneWhitelist(WHITELIST_SMALL_CAMERA)
+                new OuttaSight()
+                        .withRewardTrigger("Outta Sight")
+                        .withBitTrigger(110)
+                        .withSceneWhitelist(WHITELIST_SMALL_CAMERA),
+                new RolloMeow()
+                        .withRewardTrigger("Rollo Meow")
+                        .withBitTrigger(20)
         );
 
         // get alert reward IDs
