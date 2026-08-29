@@ -57,12 +57,10 @@ public class PowerShock extends Alert {
         Source sourceWatt;
         long successLength;
         if (success) {
-            log.info("success");
             failureStreak = 0;
             sourceWatt = sourceWattSuccess;
             successLength = getTriggerSource() == TriggerSource.BITS ? SUCCESS_LENGTH_BITS : SUCCESS_LENGTH_OTHER;
         } else {
-            log.info("failure");
             failureStreak++;
             sourceWatt = sourceWattFailure;
             successLength = 0;
@@ -73,6 +71,7 @@ public class PowerShock extends Alert {
 
         waitUntil(SHOCK_START);
         if (success) {
+            log.info("success");
             audioMic.mute();
 
             // shocked icon
@@ -89,6 +88,8 @@ public class PowerShock extends Alert {
             Controller.getScheduler().schedule(() -> flashCameraLoop(successLength), 0, TimeUnit.MILLISECONDS);
             Controller.getScheduler().schedule(() -> shakeCameraLoop(successLength), 0, TimeUnit.MILLISECONDS);
         } else {
+            log.info("failure");
+
             // dink icon
             sourceDinkIcon.moveAbsolute(DINK_HOME_X, DINK_HOME_Y);
             filterDinkIconCC.setOpacity(1f);
@@ -115,7 +116,6 @@ public class PowerShock extends Alert {
             sourceShockedIcon.disable();
             sourceNiceIcon.disable();
         }
-        log.info("finished");
     }
 
     private void oneShake() {
