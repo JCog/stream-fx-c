@@ -60,7 +60,7 @@ public class PowerShock extends Alert {
             log.info("success");
             failureStreak = 0;
             sourceWatt = sourceWattSuccess;
-            successLength = triggerSource == TriggerSource.BITS ? SUCCESS_LENGTH_BITS : SUCCESS_LENGTH_OTHER;
+            successLength = getTriggerSource() == TriggerSource.BITS ? SUCCESS_LENGTH_BITS : SUCCESS_LENGTH_OTHER;
         } else {
             log.info("failure");
             failureStreak++;

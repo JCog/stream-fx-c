@@ -45,43 +45,43 @@ public class Controller {
 
         alertList = Arrays.asList(
                 new AudioAlert("Bad RNG", "res/bandit_fail.wav")
-                        .setRewardTrigger("Give streamer bad RNG"),
+                        .withRewardTrigger("Give streamer bad RNG"),
                 new AudioAlert("Good RNG", "res/close_call.wav")
-                        .setRewardTrigger("Give streamer good RNG"),
+                        .withRewardTrigger("Give streamer good RNG"),
                 new AudioAlert("Nice", "res/attack_fx_c.wav")
-                        .setRewardTrigger("Nice"),
+                        .withRewardTrigger("Nice"),
                 new AudioAlert("Toad Scream", "res/toad_scream.wav", 0.5d)
-                        .setRewardTrigger("Toad Scream")
-                        .setBitTrigger(50),
+                        .withRewardTrigger("Toad Scream")
+                        .withBitTrigger(50),
 
                 new RolloMeow()
-                        .setRewardTrigger("Rollo Meow")
-                        .setBitTrigger(20),
+                        .withRewardTrigger("Rollo Meow")
+                        .withBitTrigger(20),
                 new FishHead()
-                        .setRewardTrigger("Fish Announcer")
-                        .setBitTrigger(99),
+                        .withRewardTrigger("Fish Announcer")
+                        .withBitTrigger(99),
                 new LilOinks()
-                        .setRewardTrigger("Li'l Oink")
-                        .setBitTrigger(101),
+                        .withRewardTrigger("Li'l Oink")
+                        .withBitTrigger(101),
                 new MiiChannel()
-                        .setRewardTrigger("Mii Channel Theme")
-                        .setBitTrigger(5),
+                        .withRewardTrigger("Mii Channel Theme")
+                        .withBitTrigger(5),
                 new Nut()
-                        .setRewardTrigger("Nut")
-                        .setBitTrigger(80)
-                        .setSceneWhitelist(WHITELIST_SMALL_CAMERA),
+                        .withRewardTrigger("Nut")
+                        .withBitTrigger(80)
+                        .withSceneWhitelist(WHITELIST_SMALL_CAMERA),
 
                 new Helium()
-                        .setBitTrigger(150)
-                        .setQueue(QUEUE_MIC),
+                        .withBitTrigger(150)
+                        .withQueue(QUEUE_MIC),
                 new MuteMic()
-                        .setBitTrigger(140)
-                        .setQueue(QUEUE_MIC),
+                        .withBitTrigger(140)
+                        .withQueue(QUEUE_MIC),
                 new PowerShock()
-                        .setRewardTrigger("Power Shock")
-                        .setBitTrigger(200)
-                        .setQueue(QUEUE_MIC)
-                        .setSceneWhitelist(WHITELIST_SMALL_CAMERA)
+                        .withRewardTrigger("Power Shock")
+                        .withBitTrigger(200)
+                        .withQueue(QUEUE_MIC)
+                        .withSceneWhitelist(WHITELIST_SMALL_CAMERA)
         );
 
         // get alert reward IDs
@@ -105,7 +105,7 @@ public class Controller {
                 if (id == null) {
                     nullIds.add(name);
                 } else {
-                    alert.setRewardId(id);
+                    alert.withRewardId(id);
                 }
             }
         }

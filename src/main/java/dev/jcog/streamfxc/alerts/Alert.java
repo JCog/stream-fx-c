@@ -16,17 +16,10 @@ public abstract class Alert implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(Alert.class);
     private static final Map<String, Queue<Alert>> QUEUE_MAP = new HashMap<>();
 
-    protected String id;
-    protected TriggerSource triggerSource;
-
     protected enum TriggerSource {
         CHANNEL_POINTS,
         BITS,
         MANUAL,
-    }
-
-    public Alert(String id) {
-        this.id = id;
     }
 
     /* all identical alerts are queued amongst themselves unless overridden by setQueue(). onTriggered() is called once
@@ -45,7 +38,7 @@ public abstract class Alert implements TwitchEventListener {
             while (!queue.isEmpty()) {
                 Alert currentAlert = queue.peek();
                 log.debug("\"{}\" triggered", currentAlert.getId());
-                currentAlert.setTriggerTime();
+                currentAlert.triggerTime = Instant.now();
                 currentAlert.onTrigger();
                 queue.poll();
                 if (queue.isEmpty() || queue.peek().getClass() != currentAlert.getClass()) {
@@ -58,42 +51,48 @@ public abstract class Alert implements TwitchEventListener {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private final String id;
     private String rewardName = null;
     private String rewardId = null;
     private Integer bitAmount = null;
     private String queueName = null;
     private Set<String> sceneWhitelist = null;
 
-    private Instant triggerTime = null;
+    private TriggerSource triggerSource;
+    private Instant triggerTime;
 
-    public Alert setRewardTrigger(String rewardName) {
+    public Alert(String id) {
+        this.id = id;
+        this.triggerSource = null;
+        this.triggerTime = null;
+    }
+
+    public Alert withRewardTrigger(String rewardName) {
         this.rewardName = rewardName;
         return this;
     }
 
-    public void setRewardId(String rewardId) {
+    public void withRewardId(String rewardId) {
         this.rewardId = rewardId;
     }
 
-    public Alert setBitTrigger(int bitAmount) {
+    public Alert withBitTrigger(int bitAmount) {
         this.bitAmount = bitAmount;
         return this;
     }
 
-    public Alert setQueue(String queueName) {
+    public Alert withQueue(String queueName) {
         this.queueName = queueName;
         return this;
     }
 
     // whitelisted for all scenes if not specified
-    public Alert setSceneWhitelist(String ... sceneNames) {
+    public Alert withSceneWhitelist(String ... sceneNames) {
         sceneWhitelist = new HashSet<>(List.of(sceneNames));
         return this;
     }
 
-    private void setTriggerTime() {
-        triggerTime = Instant.now();
-    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public String getId() {
         return id;
@@ -117,6 +116,8 @@ public abstract class Alert implements TwitchEventListener {
         }
         return sceneWhitelist.contains(scene);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onChannelPointsRedemption(CustomRewardRedemptionAddEvent channelPointsEvent) {
@@ -145,6 +146,10 @@ public abstract class Alert implements TwitchEventListener {
     protected abstract void onTrigger();
 
     protected void onFinished() {}
+
+    protected TriggerSource getTriggerSource() {
+        return this.triggerSource;
+    }
 
     protected void waitFromNow(long millis) {
         try {
