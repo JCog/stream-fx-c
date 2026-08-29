@@ -217,30 +217,34 @@ public class Controller {
 
     private void setAlertsPaused(List<Alert> alerts, boolean pause) {
         // get only known manageable reward IDs
-        List<String> rewardIds = alerts.stream()
+        List<String> manageableRewardIds = alerts.stream()
                 .map(Alert::getRewardId)
                 .filter(Objects::nonNull)
                 .toList();
-        if (rewardIds.isEmpty()) {
+        if (manageableRewardIds.isEmpty()) {
             return;
         }
 
         // only pause/unpause alerts that aren't already in the desired state
-        List<CustomReward> customRewards;
+        List<CustomReward> rewardsToUpdate;
         try {
-            customRewards = twitchApi.getCustomRewards(rewardIds, true).stream()
+            rewardsToUpdate = twitchApi.getCustomRewards(manageableRewardIds, true).stream()
                     .filter(r -> r.isPaused() != pause)
                     .toList();
         } catch (HystrixRuntimeException e) {
             log.error("unable to get list of Channel Point Rewards from Twitch");
             return;
         }
+        if (rewardsToUpdate.isEmpty()) {
+            return;
+        }
+
         log.info(
                 "{}pausing {}",
                 pause ? "" : "un",
-                customRewards.stream().map(CustomReward::getTitle).toList()
+                rewardsToUpdate.stream().map(CustomReward::getTitle).toList()
         );
-        for (CustomReward reward : customRewards) {
+        for (CustomReward reward : rewardsToUpdate) {
             reward = reward.withIsPaused(pause);
             try {
                 twitchApi.updateReward(reward);

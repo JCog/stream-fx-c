@@ -9,7 +9,7 @@ import java.util.Random;
 public class FishHead extends Alert {
     private static final String ID = "Fish Head";
 
-    private final Source sourceFish = new Source("Alerts", "Fish Head");
+    private final Source sourceFish = new Source("Alerts - Fish Head", "Fish Head");
     private final List<AudioFile> clips = AudioFile.getAudioFilesInDir("res/fish");
     private final Random random = new Random();
 

@@ -6,7 +6,7 @@ import dev.jcog.streamfxc.interfaces.obs.Source;
 public class Nut extends Alert {
     private static final String ID = "Nut";
 
-    private final Source sourceNut = new Source("Alerts", "Nut");
+    private final Source sourceNut = new Source("Alerts - Nut", "Nut");
     private final Filter filterDamaged = new Filter("DSLR", "Damaged");
 
     public Nut() {

@@ -17,7 +17,7 @@ public class PowerShock extends Alert {
 
     private static final String AUDIO_MIC = "Mic";
 
-    private static final String SCENE_ALERTS = "Alerts";
+    private static final String SCENE_ALERTS = "Alerts - Power Shock";
     private static final String SCENE_DSLR_COMMON = "Common - DSLR";
 
     private static final float WATT_HOME_X = -210f;
