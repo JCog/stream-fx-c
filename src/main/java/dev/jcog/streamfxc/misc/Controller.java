@@ -58,7 +58,7 @@ public class Controller {
                         .withRewardTrigger("Rollo Meow")
                         .withBitTrigger(20),
                 new FishHead()
-                        .withRewardTrigger("Fish Announcer")
+                        .withRewardTrigger("Realistic Fish Head")
                         .withBitTrigger(99),
                 new LilOinks()
                         .withRewardTrigger("Li'l Oink")
@@ -149,7 +149,7 @@ public class Controller {
 
         while (true) {
             String line = console.readLine();
-            if (line.equals("quit")) {
+            if (line.equals("quit") || line.equals("q")) {
                 closeAll();
                 return true;
             }
