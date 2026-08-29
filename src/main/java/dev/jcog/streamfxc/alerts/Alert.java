@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
 public abstract class Alert implements TwitchEventListener {
     private static final Logger log = LoggerFactory.getLogger(Alert.class);
     private static final Map<String, Queue<Alert>> QUEUE_MAP = new HashMap<>();
+    private static final List<Alert> delayedAlerts = new ArrayList<>();
+    private static String currentObsScene = null;
 
     protected enum TriggerSource {
         CHANNEL_POINTS,
@@ -26,6 +28,16 @@ public abstract class Alert implements TwitchEventListener {
     * for each time an alert is triggered, but onFinished() is only called once either the queue is empty or the next
     * alert in the queue is of a different type. */
     private static void queueAlert(Alert alert) {
+        // if an alert isn't whitelisted for the current OBS scene, delay it and recheck when the scene changes
+
+        // this should almost definitely be done when the alert about to be triggered instead, but the logic gets messy
+        // and I don't want to deal with that right now. in the meantime, simply don't change scenes while there are
+        // alerts in the queue.
+        if (!alert.isWhitelisted(currentObsScene)) {
+            delayedAlerts.add(alert);
+            return;
+        }
+
         String queueName = alert.queueName == null ? alert.getClass().toString() : alert.queueName;
         Queue<Alert> queue = QUEUE_MAP.computeIfAbsent(queueName, k -> new ArrayDeque<>());
 
@@ -47,6 +59,16 @@ public abstract class Alert implements TwitchEventListener {
                 }
             }
         }, 0, TimeUnit.MILLISECONDS);
+    }
+
+    public static void queueDelayedAlerts() {
+        List<Alert> delayedCopy = List.copyOf(delayedAlerts);
+        delayedAlerts.clear();
+        delayedCopy.forEach(Alert::queueAlert);
+    }
+
+    public static void setCurrentObsScene(String sceneName) {
+        currentObsScene = sceneName;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

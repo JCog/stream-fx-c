@@ -200,19 +200,26 @@ public class Controller {
     }
 
     private void onObsReady() {
-        // initialize enabling alerts
         String currentScene = getObs().getCurrentScene();
+        Alert.setCurrentObsScene(currentScene);
+
+        // unpause all alerts
         List<Alert> alerts = alertList.stream().filter(a -> a.isWhitelisted(currentScene)).toList();
         setAlertsPaused(alerts, false);
     }
 
     private void onSceneChanged(CurrentProgramSceneChangedEvent event) {
+        String sceneName = event.getSceneName();
+
         // pause/unpause Channel Point Rewards based on Alerts' OBS scene whitelists
-        event.getSceneName();
-        List<Alert> toUnpause = alertList.stream().filter(a -> a.isWhitelisted(event.getSceneName())).toList();
-        List<Alert> toPause = alertList.stream().filter(a -> !a.isWhitelisted(event.getSceneName())).toList();
+        List<Alert> toUnpause = alertList.stream().filter(a -> a.isWhitelisted(sceneName)).toList();
+        List<Alert> toPause = alertList.stream().filter(a -> !a.isWhitelisted(sceneName)).toList();
         setAlertsPaused(toUnpause, false);
         setAlertsPaused(toPause, true);
+
+        // retry queuing delayed alerts
+        Alert.setCurrentObsScene(sceneName);
+        Alert.queueDelayedAlerts();
     }
 
     private void setAlertsPaused(List<Alert> alerts, boolean pause) {
