@@ -86,7 +86,13 @@ public class Controller {
 
         // get alert reward IDs
         Map<String, String> rewardNamesToIds = new HashMap<>();
-        List<CustomReward> customRewards = twitchApi.getCustomRewards(null, true);
+        List<CustomReward> customRewards;
+        try {
+            customRewards = twitchApi.getCustomRewards(null, true);
+        } catch (HystrixRuntimeException e) {
+            log.error("unable to get initial list of Channel Point Rewards from Twitch");
+            throw new RuntimeException();
+        }
         for (CustomReward reward : customRewards) {
             rewardNamesToIds.put(reward.getTitle(), reward.getId());
         }
@@ -195,16 +201,26 @@ public class Controller {
             return;
         }
 
-        List<CustomReward> customRewards = twitchApi.getCustomRewards(rewardIds, true).stream()
-                .filter(r -> r.isPaused() != pause)
-                .toList();
+        List<CustomReward> customRewards;
+        try {
+            customRewards = twitchApi.getCustomRewards(rewardIds, true).stream()
+                    .filter(r -> r.isPaused() != pause)
+                    .toList();
+        } catch (HystrixRuntimeException e) {
+            log.error("unable to get list of Channel Point Rewards from Twitch");
+            return;
+        }
+        log.info(
+                "{}pausing {}",
+                pause ? "" : "un",
+                customRewards.stream().map(CustomReward::getTitle).toList()
+        );
         for (CustomReward reward : customRewards) {
             reward = reward.withIsPaused(pause);
             try {
                 twitchApi.updateReward(reward);
-                log.info("{} \"{}\"", pause ? "paused" : "unpaused", reward.getTitle());
             } catch (HystrixRuntimeException e) {
-                log.error("unable to {} reward \"{}\"", pause ? "pause" : "unpause", reward.getTitle());
+                log.error("unable to {}pause reward \"{}\"", pause ? "" : "un", reward.getTitle());
             }
         }
     }
@@ -229,7 +245,9 @@ public class Controller {
                 log.info("Successfully recreated \"{}\" as \"{}\"", oldTitle, newTitle);
 
                 Reward.Image img = reward.getImage();
-                log.info("images:\n{}\n{}\n{}", img.getUrl1x(), img.getUrl2x(), img.getUrl4x());
+                if (img != null) {
+                    log.info("images:\n{}\n{}\n{}", img.getUrl1x(), img.getUrl2x(), img.getUrl4x());
+                }
                 return;
             }
         }
