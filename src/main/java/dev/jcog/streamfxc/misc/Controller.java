@@ -2,6 +2,7 @@ package dev.jcog.streamfxc.misc;
 
 import com.github.twitch4j.eventsub.domain.Reward;
 import com.github.twitch4j.helix.domain.CustomReward;
+import com.github.twitch4j.helix.domain.CustomRewardList;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import dev.jcog.streamfxc.alerts.*;
 import dev.jcog.streamfxc.interfaces.OBS;
@@ -12,8 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Console;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.*;
 
 public class Controller {
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
@@ -244,13 +244,19 @@ public class Controller {
                 pause ? "" : "un",
                 rewardsToUpdate.stream().map(CustomReward::getTitle).toList()
         );
+        List<CompletableFuture<CustomRewardList>> futures = new ArrayList<>();
         for (CustomReward reward : rewardsToUpdate) {
             reward = reward.withIsPaused(pause);
             try {
-                twitchApi.updateReward(reward);
+                futures.add(twitchApi.updateReward(reward));
             } catch (HystrixRuntimeException e) {
                 log.error("unable to {}pause reward \"{}\"", pause ? "" : "un", reward.getTitle());
             }
+        }
+        try {
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("exception {}pausing alerts: {}", pause ? "" : "un", e.getMessage());
         }
     }
 

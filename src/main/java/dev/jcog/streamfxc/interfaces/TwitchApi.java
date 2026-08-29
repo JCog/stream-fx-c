@@ -13,6 +13,7 @@ import com.github.twitch4j.helix.domain.CustomRewardList;
 import com.github.twitch4j.helix.domain.User;
 import com.github.twitch4j.helix.domain.UserList;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import dev.jcog.streamfxc.misc.Controller;
 import org.jetbrains.annotations.Nullable;
 import dev.jcog.streamfxc.util.TwitchEventListener;
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class TwitchApi {
     private static final Logger log = LoggerFactory.getLogger(TwitchApi.class);
@@ -39,6 +42,7 @@ public class TwitchApi {
                 .withDefaultAuthToken(oauth)
                 .withEnableHelix(true)
                 .withEnableEventSocket(true)
+                .withRequestQueueSize(20)
                 .build();
 
         User tempUser = null;
@@ -108,12 +112,26 @@ public class TwitchApi {
                 .getRewards();
     }
 
-    public void updateReward(CustomReward updatedReward) throws HystrixRuntimeException {
-        twitchClient.getHelix().updateCustomReward(
+    public CompletableFuture<CustomRewardList> updateReward(CustomReward updatedReward) throws HystrixRuntimeException {
+        Future<CustomRewardList> future = twitchClient.getHelix().updateCustomReward(
                 authToken,
                 user.getId(),
                 updatedReward.getId(),
                 updatedReward
-        ).execute();
+        ).queue();
+        return futureToCompletableFuture(future);
+    }
+
+    // https://www.baeldung.com/java-transform-future-completablefuture
+    private static <T> CompletableFuture<T> futureToCompletableFuture(Future<T> future) {
+        CompletableFuture<T> completableFuture = new CompletableFuture<>();
+        Controller.getScheduler().submit(() -> {
+            try {
+                completableFuture.complete(future.get());
+            } catch (Exception e) {
+                completableFuture.completeExceptionally(e);
+            }
+        });
+        return completableFuture;
     }
 }
